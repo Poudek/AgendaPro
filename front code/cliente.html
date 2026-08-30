@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Pedir Barca - Dedé Sushi</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="stylesheet" href="../css/cliente.css">
+</head>
+<body>
+
+  <header class="app-header">
+    <div class="logo-wrapper">
+      <i data-lucide="utensils-crossed" class="logo-icon"></i>
+    </div>
+    <div class="header-text">
+      <h1>Dedé Sushi</h1>
+      <p>Agendamento de Barcas Especiais</p>
+    </div>
+  </header>
+
+  <main class="app-container">
+    <form id="orderForm" class="order-form">
+      
+      <!-- ETAPA 1: Contato -->
+      <section class="form-card">
+        <div class="card-header">
+          <i data-lucide="user" class="text-primary"></i>
+          <h2>Seus Dados</h2>
+        </div>
+        <div class="input-group">
+          <label for="clientName">Nome Completo</label>
+          <input type="text" id="clientName" required placeholder="Ex: João da Silva">
+        </div>
+        <div class="input-group">
+          <label for="clientPhone">WhatsApp</label>
+          <input type="tel" id="clientPhone" required placeholder="(00) 00000-0000" maxlength="15">
+        </div>
+      </section>
+
+      <!-- ETAPA 2: Entrega -->
+      <section class="form-card">
+        <div class="card-header">
+          <i data-lucide="map-pin" class="text-primary"></i>
+          <h2>Endereço de Entrega</h2>
+        </div>
+        <div class="input-group">
+          <label for="clientAddress">Rua, Número e Bairro</label>
+          <input type="text" id="clientAddress" required placeholder="Ex: Rua das Flores, 123 - Centro">
+        </div>
+        <div class="input-group">
+          <label for="clientComplement">Complemento / Ponto de Referência</label>
+          <input type="text" id="clientComplement" placeholder="Apto, Bloco, Cor da Casa...">
+        </div>
+      </section>
+
+      <!-- ETAPA 3: A Barca -->
+      <section class="form-card">
+        <div class="card-header">
+          <i data-lucide="package" class="text-primary"></i>
+          <h2>Sua Barca</h2>
+        </div>
+        <div class="input-row">
+          <div class="input-group">
+            <label for="orderType">Tipo</label>
+            <select id="orderType" required>
+              <option value="Tradicional">Tradicional</option>
+              <option value="Especial">Especial</option>
+            </select>
+          </div>
+          <div class="input-group">
+            <label for="orderShrimp">Camarão?</label>
+            <select id="orderShrimp" required>
+              <option value="Sim, liberado">Sim (Pode enviar)</option>
+              <option value="Não (Alergia)">Não (Sou alérgico)</option>
+              <option value="Não (Preferência)">Não (Não gosto)</option>
+            </select>
+          </div>
+        </div>
+        <div class="input-group">
+          <label for="orderSize">Tamanho da Barca</label>
+          <select id="orderSize" required>
+            <!-- Os tamanhos e preços serão injetados aqui via JavaScript -->
+          </select>
+        </div>
+      </section>
+
+      <!-- ETAPA 4: Agendamento e Pagamento -->
+      <section class="form-card">
+        <div class="card-header">
+          <i data-lucide="clock-3" class="text-primary"></i>
+          <h2>Agendamento & Pagamento</h2>
+        </div>
+        <div class="input-row">
+          <div class="input-group">
+            <label for="orderDate">Data</label>
+            <input type="date" id="orderDate" required>
+          </div>
+          <div class="input-group">
+            <label for="orderTime">Horário</label>
+            <!-- Alterado para select -->
+            <select id="orderTime" required>
+              <option value="" disabled selected>Selecione a data primeiro</option>
+            </select>
+          </div>
+        </div>
+        <div class="input-group">
+          <label for="orderPayment">Forma de Pagamento</label>
+          <select id="orderPayment" required>
+            <option value="" disabled selected>Selecione...</option>
+            <option value="Pix">Pix (Chave será enviada)</option>
+            <option value="Cartão de Crédito">Cartão de Crédito (Na entrega)</option>
+            <option value="Cartão de Débito">Cartão de Débito (Na entrega)</option>
+            <option value="Dinheiro">Dinheiro (Na entrega)</option>
+          </select>
+        </div>
+        <div class="input-group">
+          <label for="orderObs">Observações Extras (Opcional)</label>
+          <textarea id="orderObs" rows="3" placeholder="Quer trocar alguma peça? Mais hashi? Digite aqui..."></textarea>
+        </div>
+      </section>
+
+      <!-- Botão Fixo no Rodapé -->
+      <div class="bottom-action-bar">
+        <button type="submit" class="btn-submit">
+          <i data-lucide="send"></i> Enviar Pedido por WhatsApp
+        </button>
+      </div>
+
+    </form>
+  </main>
+
+  <script src="../js/cliente.js"></script>
+</body>
+</html>

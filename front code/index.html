@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - Dedé Sushi</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <style>
+    :root {
+      --c-900: #050505; 
+      --c-800: #121212; 
+      --c-700: #262626; 
+      --c-500: #ad2831; 
+      --c-accent-hover: #c9323c; 
+      --text-main: #f5f5f5;
+      --text-muted: #a3a3a3;
+    }
+    
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
+    
+    body {
+      background-color: var(--c-900);
+      color: var(--text-main);
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .login-container {
+      background: var(--c-800);
+      border: 1px solid var(--c-700);
+      padding: 40px;
+      border-radius: 16px;
+      width: 100%;
+      max-width: 400px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+      text-align: center;
+    }
+
+    .brand-logo {
+      width: 64px; height: 64px;
+      background: var(--c-500);
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 24px;
+      box-shadow: 0 4px 12px rgba(173, 40, 49, 0.3);
+    }
+    
+    .brand-logo i { color: #fff; width: 32px; height: 32px; }
+
+    h1 { font-size: 1.5rem; font-weight: 800; margin-bottom: 8px; }
+    p { color: var(--text-muted); font-size: 0.95rem; margin-bottom: 32px; }
+
+    .form-group { text-align: left; margin-bottom: 20px; }
+    .form-group label { display: block; font-size: 0.85rem; color: var(--text-muted); font-weight: 600; margin-bottom: 8px; }
+    .form-group input {
+      width: 100%;
+      background: var(--c-900);
+      border: 1px solid var(--c-700);
+      color: var(--text-main);
+      padding: 14px;
+      border-radius: 8px;
+      font-size: 1rem;
+      outline: none;
+      transition: 0.2s;
+    }
+    .form-group input:focus { border-color: var(--c-500); }
+
+    .btn-login {
+      width: 100%;
+      background: var(--c-500);
+      color: #fff;
+      border: none;
+      padding: 14px;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: 0.2s;
+      margin-top: 8px;
+    }
+    .btn-login:hover { background: var(--c-accent-hover); }
+
+    .error-msg {
+      color: #ef4444;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-top: 16px;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="login-container">
+    <div class="brand-logo">
+      <i data-lucide="utensils-crossed"></i>
+    </div>
+    <h1>Acesso ao Painel</h1>
+    <p>Gestão Dedé Sushi</p>
+
+    <form id="loginForm">
+      <div class="form-group">
+        <label>Usuário</label>
+        <input type="text" id="username" placeholder="Digite seu usuário" required>
+      </div>
+      <div class="form-group">
+        <label>Senha</label>
+        <input type="password" id="password" placeholder="Digite sua senha" required>
+      </div>
+      <button type="submit" class="btn-login">Entrar no Sistema</button>
+      <div id="errorMsg" class="error-msg">Usuário ou senha incorretos!</div>
+    </form>
+  </div>
+
+  <script>
+    lucide.createIcons();
+
+    // DEFINA SEU USUÁRIO E SENHA AQUI
+    const VALID_USER = "admin";
+    const VALID_PASS = "dede2026"; 
+
+    const loginForm = document.getElementById("loginForm");
+    const errorMsg = document.getElementById("errorMsg");
+
+    loginForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      
+      const user = document.getElementById("username").value;
+      const pass = document.getElementById("password").value;
+
+      if (user === VALID_USER && pass === VALID_PASS) {
+        // Salva a permissão no navegador
+        localStorage.setItem("sushiAdminLoggedIn", "true");
+        // Redireciona para o painel principal
+        window.location.href = "admin.html"; 
+      } else {
+        errorMsg.style.display = "block";
+        document.getElementById("password").value = ""; // Limpa a senha
+      }
+    });
+  </script>
+</body>
+</html>

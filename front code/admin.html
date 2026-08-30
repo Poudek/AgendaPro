@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin - Sushi Agenda Pro</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <script src="https://npmcdn.com/flatpickr/dist/l10n/pt.js"></script>
+  <link rel="stylesheet" href="./css/admin.css">
+</head>
+<body>
+
+  <header class="topbar">
+    <div class="topbar-brand">
+      <div class="brand-logo-wrapper">
+        <i data-lucide="utensils-crossed" class="logo-icon"></i>
+      </div>
+      <div class="brand-text">
+        <h1>Dedé Sushi - Barcas</h1>
+        <small>Gestão de Encomendas Especiais</small>
+      </div>
+    </div>
+
+    <div class="topbar-controls">
+      <div class="control-group">
+        <i data-lucide="calendar" class="icon-sm"></i>
+        <input type="date" id="dateFilter" class="input-control">
+      </div>
+      <button class="btn-advance" id="btnNewOrder" style="padding: 8px 16px;">
+        <i data-lucide="plus" class="icon-sm"></i> Novo Pedido
+      </button>
+      <button id="btnLogout" class="btn-logout" title="Sair do Sistema">
+        <i data-lucide="log-out" class="icon-sm"></i>
+      </button>
+    </div>
+  </header>
+
+  <section class="metrics-bar">
+    <div class="metric-card">
+      <span class="label">Total Hoje</span>
+      <strong class="value" id="metricTotal">0</strong>
+    </div>
+    <div class="metric-card">
+      <span class="label">Pendentes</span>
+      <strong class="value text-warning" id="metricPending">0</strong>
+    </div>
+    <div class="metric-card">
+      <span class="label">Em Preparo</span>
+      <strong class="value text-primary" id="metricPreparing">0</strong>
+    </div>
+    <div class="metric-card">
+      <span class="label">Prontos</span>
+      <strong class="value text-success" id="metricReady">0</strong>
+    </div>
+    <div class="metric-card">
+      <span class="label">Entregues</span>
+      <strong class="value text-info" id="metricDelivered">0</strong>
+    </div>
+    <div class="metric-card">
+      <span class="label">Cancelados</span>
+      <strong class="value text-danger" id="metricCanceled">0</strong>
+    </div>
+  </section>
+
+  <main class="dashboard-grid">
+    
+    <!-- Coluna Esquerda: Lista de Agendamentos -->
+    <section class="agenda-column">
+      <div class="column-header">
+        <h2>Horários do Dia</h2>
+        <span class="subtext">Selecione para ver detalhes</span>
+      </div>
+      <div class="timeline-list" id="ordersList">
+        <!-- O JavaScript preencherá aqui -->
+      </div>
+    </section>
+
+    <!-- Coluna Direita: Detalhes do Pedido Selecionado -->
+    <section class="details-column" id="detailsPane">
+      <!-- Estado Vazio (quando nada está selecionado) -->
+      <div class="empty-state" id="emptyDetails">
+        <i data-lucide="inbox" class="empty-icon"></i>
+        <p>Selecione um agendamento na lista.</p>
+      </div>
+
+      <!-- Card de Detalhes Ativo -->
+      <div class="details-card hidden" id="activeDetails">
+        <div class="details-header">
+          <div>
+            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 4px;">
+              <span class="order-badge" id="detId">#BC-0000</span>
+              <span style="font-size: 0.85rem; color: var(--text-muted); font-weight: 500;" id="detCreatedAt">Agendado em: --</span>
+            </div>
+            <h2 id="detCustomerName">Nome do Cliente</h2>
+          </div>
+          
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <button id="btnEditOrder" class="btn-cancel" style="padding: 6px 12px; border: 1px solid var(--c-700); font-size: 0.9rem;" title="Editar Pedido">
+              <i data-lucide="edit" class="icon-sm"></i> Editar
+            </button>
+            <span class="status-tag" id="detStatusBadge">Status</span>
+          </div>
+        </div>
+
+        <div class="details-grid">
+          <!-- BLOCO 1: Informações do Pedido -->
+          <div class="card-section">
+            <div class="section-title">
+              <i data-lucide="package" class="section-icon-accent"></i>
+              <h3>Pedido Especial</h3>
+            </div>
+            
+            <div class="field-row">
+              <span class="field-label">Horário Marcado:</span>
+              <strong class="field-value text-accent" id="detTime">--:--</strong>
+            </div>
+            <div class="field-row">
+              <span class="field-label">Tamanho / Modelo:</span>
+              <span class="field-value" id="detSize">--</span>
+            </div>
+            <div class="field-row">
+              <span class="field-label">Permite Camarão?</span>
+              <span class="field-value" id="detShrimp">--</span>
+            </div>
+            
+            <div class="field-row">
+              <span class="field-label">Forma de Pagamento:</span>
+              <span class="field-value" id="detPaymentMethod">--</span>
+            </div>
+
+            <!-- VALORES E TOTAL -->
+            <div class="field-row" style="margin-top: 12px; padding-top: 12px; border-top: 1px dashed var(--c-700);">
+              <span style="font-weight: 700; color: var(--text-main);">Valor da Barca</span>
+              <span class="field-value highlight-time" id="detPrice" style="color: var(--success); font-size: 1.6rem;">R$ 0,00</span>
+            </div>
+            
+            <!-- NOVOS CAMPOS DE FRETE E TOTAL -->
+            <div class="field-row" style="margin-top: 8px;">
+              <span>Taxa de Entrega</span>
+              <span class="field-value" id="detFreight" style="color: var(--warning);">--</span>
+            </div>
+            <div class="field-row" style="margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--c-700);">
+              <span style="font-weight: 800; color: var(--text-main); font-size: 1.1rem;">TOTAL DO PEDIDO</span>
+              <span class="field-value" id="detTotal" style="color: var(--success); font-size: 1.6rem; font-weight: 800;">R$ 0,00</span>
+            </div>
+
+            <div class="field-block">
+              <div class="obs-title">
+                <i data-lucide="file-text" class="icon-small"></i>
+                <span class="field-label">Observações e Preferências:</span>
+              </div>
+              <div class="obs-box" id="detObs">Nenhuma observação informada.</div>
+            </div>
+          </div>
+
+          <!-- BLOCO 2: Informações de Entrega -->
+          <div class="card-section">
+            <div class="section-title">
+              <i data-lucide="map-pin" class="section-icon-accent"></i>
+              <h3>Contato e Entrega</h3>
+            </div>
+
+            <div class="field-row">
+              <span class="field-label">Telefone:</span>
+              <span class="field-value" id="detPhone">--</span>
+            </div>
+            <div class="field-row">
+              <span class="field-label">Endereço:</span>
+              <span class="field-value" id="detAddress">--</span>
+            </div>
+            <div class="field-row">
+              <span class="field-label">Complemento:</span>
+              <span class="field-value" id="detComplement">--</span>
+            </div>
+          </div>
+        </div> <!-- Fim da details-grid -->
+
+        <div class="details-footer">
+          <div class="action-group">
+            <button class="btn-cancel" id="btnCancelOrder">Cancelar Pedido</button>
+          </div>
+          
+          <div class="action-group">
+            <button class="btn-whatsapp" id="btnWhatsapp">
+              <i data-lucide="message-circle" class="icon-sm"></i> WhatsApp
+            </button>
+            
+            <!-- NOVO BOTÃO DE ENVIAR FRETE -->
+            <button id="btnSendFreight" class="btn-advance" style="background-color: #25D366; color: #121212;">
+              <i data-lucide="send" class="icon-sm"></i> Enviar Frete
+            </button>
+            
+            <button class="btn-advance" id="btnAdvanceStatus">
+              Avançar Status <i data-lucide="arrow-right" class="icon-sm"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <div class="modal-overlay hidden" id="newOrderModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2><i data-lucide="plus-circle" class="icon-sm text-primary"></i> Adicionar Pedido Manual</h2>
+        <button class="btn-close-modal" id="btnCloseModal"><i data-lucide="x"></i></button>
+      </div>
+      
+      <form id="newOrderForm" class="modal-body">
+        
+        <div class="form-section">
+          <h3>Dados do Cliente & Entrega</h3>
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Nome do Cliente</label>
+              <input type="text" id="addName" required placeholder="Ex: João Silva">
+            </div>
+            <div class="form-group">
+              <label>WhatsApp / Telefone</label>
+              <input type="text" id="addPhone" required placeholder="Ex: (85) 99999-9999" maxlength="15">
+            </div>
+            <div class="form-group full-width">
+              <label>Endereço Completo</label>
+              <input type="text" id="addAddress" required placeholder="Rua, Número, Bairro">
+            </div>
+            <div class="form-group full-width">
+              <label>Complemento / Referência</label>
+              <input type="text" id="addComplement" placeholder="Apto, Bloco, Cor da Casa...">
+            </div>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <h3>Detalhes da Barca</h3>
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Data do Agendamento</label>
+              <input type="date" id="addDate" required>
+            </div>
+            <div class="form-group">
+              <label>Horário do Agendamento</label>
+              <input type="time" id="addTime" required>
+            </div>
+            <div class="form-group">
+              <label>Forma de Pagamento</label>
+              <select id="addPayment" required>
+                <option value="Pix (Aguardando)">Pix (Aguardando)</option>
+                <option value="Pix (Pago)">Pix (Pago)</option>
+                <option value="Cartão de Crédito (na entrega)">Cartão de Crédito (Entrega)</option>
+                <option value="Cartão de Débito (na entrega)">Cartão de Débito (Entrega)</option>
+                <option value="Dinheiro (na entrega)">Dinheiro (Entrega)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Valor do Frete (R$)</label>
+              <input type="text" id="addFreight" placeholder="0,00">
+            </div>
+            <div class="form-group">
+              <label>Tipo da Barca</label>
+              <select id="addType" required>
+                <option value="Tradicional">Tradicional</option>
+                <option value="Especial">Especial</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Tamanho</label>
+              <select id="addSize" required>
+                <option value="Express descartável - 50 peças">Express descartável - 50 peças</option>
+                <option value="P - 70 Peças">P - 70 Peças</option>
+                <option value="M - 90 Peças">M - 90 Peças</option>
+                <option value="G - 150 Peças">G - 150 Peças</option>
+                <option value="GG - 200 Peças">GG - 200 Peças</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Acrescenta Camarão?</label>
+              <select id="addShrimp" required>
+                <option value="Sim, liberado">Sim, liberado</option>
+                <option value="Não (Alergia)">Não (Alergia)</option>
+                <option value="Não (Preferência)">Não (Preferência)</option>
+              </select>
+            </div>
+            <div class="form-group full-width">
+              <label>Observações Adicionais</label>
+              <textarea id="addObs" rows="2" placeholder="Restrições, troca de peças, hashis extras..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn-cancel" id="btnCancelModal">Cancelar</button>
+          <button type="submit" class="btn-advance">Salvar Pedido</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="./js/admin.js"></script>
+  <!-- ÁUDIO DE NOTIFICAÇÃO PARA COZINHA -->
+  <audio id="notificationSound" src="https://actions.google.com/sounds/v1/alarms/phone_ringing.ogg" preload="auto"></audio>
+<!-- SCRIPT DE PROTEÇÃO DE TELA -->
+  <script>
+    if (localStorage.getItem("sushiAdminLoggedIn") !== "true") {
+      window.location.href = "index.html"; // Manda de volta pro login se não tiver permissão
+    }
+  </script>
+  <!-- CONTAINER DOS POP-UPS -->
+  <div id="toastContainer" class="toast-container"></div>
+</body>
+</html>

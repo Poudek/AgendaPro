@@ -1,0 +1,668 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+:root {
+  /* Base Dark Mode: Pretos e Cinzas */
+  --c-900: #050505; /* Fundo Principal (Preto profundo) */
+  --c-800: #121212; /* Superfícies / Cards (Cinza quase preto) */
+  --c-700: #262626; /* Bordas e Linhas divisórias */
+  --c-600: #1e1e1e; /* Hovers nos cards */
+  
+  /* Destaque: Vermelho da Paleta */
+  --c-500: #ad2831; /* Botões e destaques principais */
+  --c-accent-hover: #c9323c; /* Hover do botão vermelho */
+
+  /* Textos */
+  --text-main: #f5f5f5;
+  --text-muted: #a3a3a3;
+  
+  /* Semânticas */
+  --success: #34d399;
+  --warning: #fbbf24;
+  --danger: #ef4444;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+body {
+  background-color: var(--c-900);
+  color: var(--text-main);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Ícones */
+.icon-sm { width: 18px; height: 18px; stroke-width: 2.5; }
+.text-warning { color: var(--warning); }
+.text-primary { color: var(--c-500); }
+.text-success { color: var(--success); }
+.text-info { color: #3b82f6; } 
+
+/* --- BARRA DE MÉTRICAS (OTIMIZADA E COMPACTA) --- */
+/* Barra de Métricas em 6 Colunas Compactas */
+.metrics-bar {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr); /* 6 colunas na mesma linha */
+  gap: 12px;                             /* Espaço reduzido entre cards */
+  padding: 16px 32px;
+  max-width: 1400px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.metric-card {
+  background: var(--c-800);
+  border: 1px solid var(--c-700);
+  padding: 12px 14px; 
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.metric-card .label {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.metric-card .value {
+  font-size: 1.5rem;
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+
+/* Topbar */
+.topbar {
+  background-color: var(--c-900);
+  border-bottom: 1px solid var(--c-700);
+  padding: 16px 32px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.topbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.brand-logo-wrapper {
+  width: 48px; height: 48px;
+  background: var(--c-500);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(173, 40, 49, 0.2);
+}
+
+.logo-icon { color: var(--text-main); width: 24px; height: 24px; }
+
+.brand-text h1 {
+  font-size: 1.4rem;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+}
+
+.brand-text small {
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.topbar-controls {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+/*calendário*/
+.control-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--c-800);
+  padding: 10px 20px;
+  border-radius: 12px;
+  border: 1px solid var(--c-700);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.control-group:hover {
+  background: var(--c-700);
+  border-color: var(--c-500);
+}
+
+.control-group i {
+  color: var(--c-500); /* Deixa o ícone de calendário vermelho */
+}
+
+.input-control {
+  background: transparent;
+  border: none;
+  color: var(--text-main);
+  font-size: 1.05rem;
+  font-weight: 700;
+  outline: none;
+  cursor: pointer;
+}
+
+/* Deixa o ícone nativo do calendário branco e ligeiramente transparente */
+.input-control::-webkit-calendar-picker-indicator { 
+  filter: invert(1); 
+  opacity: 0.7;
+  cursor: pointer; 
+}
+.input-control::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
+}
+
+/* Dashboard */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 400px 1fr;
+  gap: 24px;
+  padding: 0 32px 32px;
+  max-width: 1400px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.column-header h2 {
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+.column-header .subtext {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+.column-header { margin-bottom: 16px; }
+
+.timeline-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-height: calc(100vh - 280px);
+  overflow-y: auto;
+  padding-right: 8px;
+}
+.timeline-list::-webkit-scrollbar { width: 6px; }
+.timeline-list::-webkit-scrollbar-thumb { background: var(--c-700); border-radius: 4px; }
+
+/* Card da Lista */
+.timeline-card {
+  background: var(--c-800);
+  border: 1px solid var(--c-700);
+  padding: 16px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.timeline-card:hover {
+  background: var(--c-600);
+  border-color: #333;
+}
+.timeline-card.selected {
+  background: var(--c-700);
+  border-color: var(--c-500);
+  box-shadow: inset 4px 0 0 var(--c-500);
+}
+
+.card-time { font-size: 1.3rem; font-weight: 800; }
+.card-meta { flex: 1; margin-left: 16px; }
+.card-client { font-weight: 700; font-size: 1rem; }
+.card-details { font-size: 0.85rem; color: var(--text-muted); margin-top: 4px; }
+
+/* Ficha Direita */
+.details-column {
+  background: var(--c-800);
+  border: 1px solid var(--c-700);
+  border-radius: 16px;
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+}
+
+.empty-state { margin: auto; text-align: center; color: var(--c-700); }
+.empty-icon { width: 64px; height: 64px; margin-bottom: 16px; }
+.details-card.hidden { display: none; }
+
+.details-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  border-bottom: 1px solid var(--c-700);
+  padding-bottom: 24px;
+  margin-bottom: 24px;
+}
+.order-badge { font-weight: 700; color: var(--c-500); font-size: 0.9rem; }
+.details-header h2 { font-size: 1.8rem; font-weight: 800; margin-top: 4px; }
+
+.status-tag {
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+}
+
+.details-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+}
+
+.card-section { display: flex; flex-direction: column; gap: 16px; }
+
+/* Títulos das seções da Ficha do Pedido (ex: Pedido Especial, Contato) */
+.card-section h3,
+.section-title {
+  display: flex;
+  align-items: center;      /* Centraliza verticalmente */
+  gap: 8px;                 /* Espaço entre o ícone e o texto */
+  font-size: 1.05rem;
+  color: var(--c-500);
+  margin: 0 0 12px 0;       /* Remove margens extras e dá um espaço só pra baixo */
+  padding: 0;
+  border: none;
+  line-height: 1;           /* Evita que o texto crie espaço extra invisível em cima/embaixo */
+}
+
+/* Ocultar margens extras no h3 interno se houver estrutura aninhada */
+.section-title h3 {
+  margin: 0;
+  padding: 0;
+  line-height: 1;
+  font-size: 1.05rem;
+  border: none;
+}
+
+/* Ajuste fino para os ícones dentro desses títulos */
+.card-section h3 svg,
+.section-title svg {
+  display: block;           /* Remove pequenos espaços que o navegador coloca em ícones inline */
+  width: 20px;
+  height: 20px;
+}
+
+/* Ajuste da cor do ícone, caso precise forçar a cor vermelha nele também */
+.section-icon-accent {
+  color: var(--c-500);
+}
+
+.field-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.95rem;
+}
+.field-row span:first-child { color: var(--text-muted); }
+.field-value { font-weight: 600; text-align: right; }
+.highlight-time { font-size: 1.4rem; color: var(--c-500); }
+
+.field-block { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
+.field-block span { color: var(--text-muted); font-size: 0.95rem; }
+.obs-box {
+  background: var(--c-900);
+  border: 1px solid var(--c-700);
+  border-left: 4px solid var(--c-500);
+  padding: 16px;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+/* Rodapé & Botões */
+.details-footer {
+  margin-top: auto;
+  padding-top: 32px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.action-group { display: flex; gap: 12px; }
+
+button {
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  border: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+.btn-whatsapp { background: var(--c-900); color: var(--text-main); border: 1px solid var(--c-700); }
+.btn-whatsapp:hover { background: #16a34a; border-color: #16a34a; color: #fff; }
+
+.btn-cancel { background: transparent; color: var(--text-muted); border: 1px solid var(--c-700); }
+.btn-cancel:hover { background: var(--c-700); color: var(--text-main); }
+.btn-cancel.active { background: var(--c-500); color: #fff; border-color: var(--c-500); }
+.btn-cancel.active:hover { background: var(--c-accent-hover); border-color: var(--c-accent-hover); }
+
+.btn-advance { background: var(--c-500); color: #fff; }
+.btn-advance:hover { background: var(--c-accent-hover); }
+.btn-advance:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* Status Cores (Ajustadas para o fundo super escuro) */
+.status-pendente { color: var(--warning); background: rgba(251, 191, 36, 0.15); }
+.status-preparo { color: #f87171; background: rgba(239, 68, 68, 0.15); } /* Um vermelho mais claro para dar leitura no status */
+.status-pronto { color: var(--success); background: rgba(52, 211, 153, 0.15); }
+.status-cancelado { color: var(--danger); background: rgba(239, 68, 68, 0.1); text-decoration: line-through; }
+.status-entregue { color: #3b82f6; background: rgba(59, 130, 246, 0.15); }
+/* Adicione junto com as outras cores de status */
+.status-aguardando { color: #d946ef; background: rgba(217, 70, 239, 0.15); border: 1px solid #d946ef; }
+
+/* --- MODAL DE NOVO PEDIDO --- */
+.modal-overlay {
+  position: fixed;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(4px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  opacity: 1;
+  transition: opacity 0.2s;
+}
+
+.modal-overlay.hidden {
+  display: none;
+  opacity: 0;
+}
+
+.modal-content {
+  background: var(--c-800);
+  border: 1px solid var(--c-700);
+  border-radius: 16px;
+  width: 90%;
+  max-width: 600px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+
+.modal-header {
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--c-700);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-header h2 {
+  font-size: 1.2rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-close-modal {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 4px;
+}
+.btn-close-modal:hover { color: var(--text-main); }
+
+.modal-body {
+  padding: 24px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+.modal-body::-webkit-scrollbar { width: 6px; }
+.modal-body::-webkit-scrollbar-thumb { background: var(--c-700); border-radius: 4px; }
+
+.form-section h3 {
+  font-size: 0.95rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 12px;
+  border-bottom: 1px solid var(--c-700);
+  padding-bottom: 8px;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-group.full-width {
+  grid-column: 1 / -1;
+}
+
+.form-group label {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.form-group input, 
+.form-group select, 
+.form-group textarea {
+  background: var(--c-900);
+  border: 1px solid var(--c-700);
+  color: var(--text-main);
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.form-group input:focus, 
+.form-group select:focus, 
+.form-group textarea:focus {
+  border-color: var(--c-500);
+}
+
+.modal-footer {
+  padding: 16px 24px;
+  border-top: 1px solid var(--c-700);
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  background: var(--c-900);
+}
+
+/* Tag de Pedido Manual */
+.manual-badge {
+  font-size: 0.65rem;
+  background: rgba(173, 40, 49, 0.15); 
+  color: var(--c-500);
+  padding: 2px 6px;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.icon-xs { 
+  width: 12px; 
+  height: 12px; 
+  stroke-width: 2.5; 
+}
+
+/* Garante que o nome do cliente e a tag fiquem alinhados */
+.card-client { 
+  display: flex;
+  align-items: center;
+  font-weight: 700; 
+  font-size: 1rem; 
+}
+
+/* --- POP-UP DE NOTIFICAÇÃO (TOAST) --- */
+.toast-container {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  z-index: 9999;
+}
+
+.toast-notification {
+  background: var(--c-800);
+  border-left: 4px solid var(--c-500);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+  padding: 16px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-width: 320px;
+  animation: slideIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+.toast-notification.hiding {
+  animation: slideOut 0.3s ease-in forwards;
+}
+
+@keyframes slideIn {
+  from { transform: translateX(120%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes slideOut {
+  from { transform: translateX(0); opacity: 1; }
+  to { transform: translateX(120%); opacity: 0; }
+}
+
+.toast-icon {
+  background: rgba(173, 40, 49, 0.15);
+  color: var(--c-500);
+  padding: 10px;
+  border-radius: 50%;
+  display: flex;
+}
+
+.toast-content h4 { 
+  font-size: 0.95rem; 
+  margin-bottom: 4px; 
+  color: var(--text-main); 
+}
+.toast-content p { 
+  font-size: 0.85rem; 
+  color: var(--text-muted); 
+}
+
+/* --- CALENDÁRIO CUSTOMIZADO (FLATPICKR DARK MODE) --- */
+.flatpickr-calendar {
+  background: var(--c-800) !important;
+  border: 1px solid var(--c-700) !important;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5) !important;
+}
+
+.flatpickr-months .flatpickr-month,
+.flatpickr-current-month .flatpickr-monthDropdown-months,
+.flatpickr-current-month input.cur-year {
+  color: var(--text-main) !important;
+  fill: var(--text-main) !important;
+}
+
+.flatpickr-day {
+  color: var(--text-main) !important;
+  position: relative; /* Necessário para posicionar o dot vermelho */
+}
+
+.flatpickr-day:hover, 
+.flatpickr-day:focus {
+  background: var(--c-700) !important;
+  border-color: var(--c-700) !important;
+}
+
+/* Dia Selecionado */
+.flatpickr-day.selected {
+  background: var(--c-500) !important;
+  border-color: var(--c-500) !important;
+  color: #fff !important;
+}
+
+/* O "Dot" Vermelho de Agendamento */
+.has-order-dot {
+  position: absolute;
+  bottom: 4px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 6px;
+  height: 6px;
+  background-color: var(--c-500);
+  border-radius: 50%;
+}
+
+/* Se o dia estiver selecionado, muda o dot pra branco pra dar contraste */
+.flatpickr-day.selected .has-order-dot {
+  background-color: #fff;
+}
+
+/* Cor das siglas dos dias da semana (Dom, Seg, Ter...) */
+span.flatpickr-weekday {
+  color: var(--text-muted) !important;
+  font-weight: 600;
+}
+
+/* Cor das setas de navegação dos meses */
+.flatpickr-months .flatpickr-prev-month svg,
+.flatpickr-months .flatpickr-next-month svg {
+  fill: var(--text-muted) !important;
+  transition: fill 0.2s ease;
+}
+
+/* Efeito ao passar o mouse nas setas (fica branco) */
+.flatpickr-months .flatpickr-prev-month:hover svg,
+.flatpickr-months .flatpickr-next-month:hover svg {
+  fill: var(--text-main) !important;
+}
+
+/* Botão de Sair (Logout) */
+.btn-logout {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+/* Efeito ao passar o mouse */
+.btn-logout:hover {
+  color: var(--c-500); /* Muda o ícone para o vermelho da marca */
+  background: rgba(173, 40, 49, 0.1); /* Dá um fundinho vermelho bem suave */
+}

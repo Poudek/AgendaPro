@@ -1,0 +1,185 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+:root {
+  --c-900: #050505;
+  --c-800: #121212;
+  --c-700: #262626;
+  --c-500: #ad2831;
+  --c-accent-hover: #c9323c;
+  --text-main: #f5f5f5;
+  --text-muted: #a3a3a3;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  -webkit-tap-highlight-color: transparent; /* Remove brilho azul ao tocar no mobile */
+}
+
+body {
+  background-color: var(--c-900);
+  color: var(--text-main);
+  padding-bottom: 100px; /* Espaço para a barra fixa do rodapé */
+}
+
+/* Utilitários */
+.text-primary { color: var(--c-500); }
+
+/* Header */
+.app-header {
+  background-color: var(--c-800);
+  border-bottom: 1px solid var(--c-700);
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.logo-wrapper {
+  width: 48px;
+  height: 48px;
+  background: var(--c-500);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.logo-icon { color: #fff; width: 24px; height: 24px; }
+
+.header-text h1 { font-size: 1.2rem; font-weight: 800; line-height: 1.1; }
+.header-text p { font-size: 0.85rem; color: var(--text-muted); margin-top: 2px; }
+
+/* Container Principal */
+.app-container {
+  padding: 16px;
+  max-width: 600px; /* Limita a largura em tablets/desktop */
+  margin: 0 auto;
+}
+
+.order-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Cards do Formulário */
+.form-card {
+  background-color: var(--c-800);
+  border: 1px solid var(--c-700);
+  border-radius: 16px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-bottom: 1px solid var(--c-700);
+  padding-bottom: 12px;
+  margin-bottom: 4px;
+}
+
+.card-header h2 { font-size: 1.1rem; font-weight: 700; }
+.card-header svg { width: 20px; height: 20px; }
+
+/* Inputs */
+.input-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.input-group label {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.input-group input,
+.input-group select,
+.input-group textarea {
+  background-color: var(--c-900);
+  border: 1px solid var(--c-700);
+  color: var(--text-main);
+  padding: 0 16px;
+  border-radius: 10px;
+  font-size: 1rem; /* Previne zoom automático no iOS */
+  min-height: 48px; /* Altura ideal para toque */
+  outline: none;
+  transition: border-color 0.2s;
+  appearance: none; /* Remove seta padrão do select */
+}
+
+/* Seta customizada pro Select */
+.input-group select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23a3a3a3' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 16px;
+  padding-right: 40px;
+}
+
+.input-group textarea {
+  padding: 12px 16px;
+  resize: vertical;
+}
+
+.input-group input:focus,
+.input-group select:focus,
+.input-group textarea:focus {
+  border-color: var(--c-500);
+}
+
+.input-group input[type="date"]::-webkit-calendar-picker-indicator,
+.input-group input[type="time"]::-webkit-calendar-picker-indicator {
+  filter: invert(1); /* Deixa os ícones de data/hora brancos */
+}
+
+/* Barra de Ação Fixa (Rodapé) */
+.bottom-action-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background: var(--c-800);
+  border-top: 1px solid var(--c-700);
+  padding: 16px;
+  z-index: 20;
+  display: flex;
+  justify-content: center;
+}
+
+.btn-submit {
+  width: 100%;
+  max-width: 600px;
+  background-color: var(--c-500);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  height: 54px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.btn-submit:active { background-color: var(--c-accent-hover); }
