@@ -8,7 +8,6 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <script src="https://unpkg.com/lucide@latest"></script>
-  <!-- CAMINHO CORRIGIDO: usa ./ em vez de ../ -->
   <link rel="stylesheet" href="./css/cliente.css">
 </head>
 <body>
@@ -58,34 +57,53 @@
         </div>
       </section>
 
-      <!-- ETAPA 3: A Barca -->
+      <!-- ETAPA 3: A Barca (Múltiplas Barcas / Carrinho) -->
       <section class="form-card">
         <div class="card-header">
           <i data-lucide="package" class="text-primary"></i>
-          <h2>Sua Barca</h2>
+          <h2>Monte suas Barcas</h2>
         </div>
         <div class="input-row">
           <div class="input-group">
             <label for="orderType">Tipo</label>
-            <select id="orderType" required>
+            <select id="orderType">
               <option value="Tradicional">Tradicional</option>
               <option value="Especial">Especial</option>
             </select>
           </div>
           <div class="input-group">
             <label for="orderShrimp">Camarão?</label>
-            <select id="orderShrimp" required>
+            <select id="orderShrimp">
               <option value="Sim, liberado">Sim (Pode enviar)</option>
               <option value="Não (Alergia)">Não (Sou alérgico)</option>
               <option value="Não (Preferência)">Não (Não gosto)</option>
             </select>
           </div>
         </div>
+        
+        <!-- TAMANHO DA BARCA (Largura total agora) -->
         <div class="input-group">
           <label for="orderSize">Tamanho da Barca</label>
-          <select id="orderSize" required>
+          <select id="orderSize">
             <!-- Os tamanhos e preços serão injetados aqui via JavaScript -->
           </select>
+        </div>
+
+        <!-- BOTÃO PARA ADICIONAR A BARCA À LISTA -->
+        <button type="button" id="btnAddBarca" style="margin-top: 14px; width: 100%; padding: 12px; background: rgba(239, 68, 68, 0.15); border: 1px dashed var(--primary, #ef4444); color: #fff; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">
+          <i data-lucide="plus-circle" style="width: 18px; height: 18px;"></i> Adicionar ao Pedido
+        </button>
+
+        <!-- ÁREA ONDE APARECEM AS BARCAS ADICIONADAS -->
+        <div id="cartContainer" style="margin-top: 16px; display: none; flex-direction: column; gap: 8px;">
+          <label style="font-size: 0.85rem; color: var(--text-muted, #aaa); font-weight: 600;">Barcas Adicionadas neste Pedido:</label>
+          <div id="cartList" style="display: flex; flex-direction: column; gap: 6px;"></div>
+          
+          <!-- CAMPO DO TOTAL ACUMULADO (FORA FRETE) -->
+          <div id="cartTotalBox" style="display: flex; align-items: center; justify-content: space-between; background: rgba(255, 255, 255, 0.08); padding: 10px 14px; border-radius: 6px; margin-top: 4px; border: 1px solid rgba(255, 255, 255, 0.15);">
+            <span style="font-size: 0.9rem; font-weight: 700; color: #fff;">Total (fora frete):</span>
+            <strong id="cartSubtotalValue" style="font-size: 1.1rem; color: #22c55e;">R$ 0,00</strong>
+          </div>
         </div>
       </section>
 
@@ -133,7 +151,6 @@
     </form>
   </main>
 
-  <!-- CAMINHO CORRIGIDO: usa ./ em vez de ../ -->
   <script src="./js/cliente.js"></script>
   <script>
     if (window.lucide) lucide.createIcons();
