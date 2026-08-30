@@ -18,24 +18,24 @@ function saveDatabase() {
 
 let activeOrderId = null;
 
-// Calcula o preço baseado no tipo e tamanho
+// Calcula o preço baseado no tipo e tamanho (FORMATADO COM ,00)
 function getOrderPrice(type, size) {
   if (!type || !size) return "--";
   
   if (type === "Tradicional") {
-    if (size.includes("50")) return "R$ 190";
-    if (size.includes("70")) return "R$ 280";
-    if (size.includes("90")) return "R$ 360";
-    if (size.includes("150")) return "R$ 600";
-    if (size.includes("200")) return "R$ 690";
+    if (size.includes("50")) return "R$ 190,00";
+    if (size.includes("70")) return "R$ 280,00";
+    if (size.includes("90")) return "R$ 360,00";
+    if (size.includes("150")) return "R$ 600,00";
+    if (size.includes("200")) return "R$ 690,00";
   } 
   
   if (type === "Especial") {
-    if (size.includes("50")) return "R$ 280";
-    if (size.includes("70")) return "R$ 370";
-    if (size.includes("90")) return "R$ 450";
-    if (size.includes("150")) return "R$ 750";
-    if (size.includes("200")) return "R$ 985";
+    if (size.includes("50")) return "R$ 280,00";
+    if (size.includes("70")) return "R$ 370,00";
+    if (size.includes("90")) return "R$ 450,00";
+    if (size.includes("150")) return "R$ 750,00";
+    if (size.includes("200")) return "R$ 985,00";
   }
   
   return "A conferir";
@@ -47,6 +47,7 @@ const emptyDetails = document.getElementById("emptyDetails");
 const activeDetails = document.getElementById("activeDetails");
 const btnCancelOrder = document.getElementById("btnCancelOrder");
 const btnAdvanceStatus = document.getElementById("btnAdvanceStatus");
+const btnDeleteOrder = document.getElementById("btnDeleteOrder"); // <--- Adicionado
 
 // A função de métricas agora recebe a lista filtrada do dia
 function updateMetrics(dailyOrders) {
@@ -91,7 +92,6 @@ function renderTimeline() {
     const card = document.createElement("div");
     
     let statusClass = "status-pendente";
-    // Adicione nas verificações de if (order.status === ...)
     if (order.status === "Aguardando Frete") statusClass = "status-aguardando";
     if (order.status === "Em Preparo") statusClass = "status-preparo";
     if (order.status === "Pronto") statusClass = "status-pronto";
@@ -107,7 +107,6 @@ function renderTimeline() {
     const formattedDate = `${dateSplit[2]}/${dateSplit[1]}`;
     const isToday = order.date === todayISO;
     
-    // Se for de outro dia, fica amarelo/laranja. Se for hoje, fica cinza neutro.
     const dateColor = isToday ? "var(--text-muted)" : "var(--warning)";
     const dateWeight = isToday ? "500" : "800";
 
@@ -152,7 +151,7 @@ function selectOrder(orderId) {
   document.getElementById("detSize").textContent = order.size;
   document.getElementById("detShrimp").textContent = order.allowShrimp;
   document.getElementById("detPaymentMethod").textContent = order.paymentMethod || "--";
-  document.getElementById("detPrice").textContent = getOrderPrice(order.rawType, order.rawSize);
+  
   // Lógica de Preço, Frete e Total
   const barcaPriceRaw = getOrderPrice(order.rawType, order.rawSize);
   document.getElementById("detPrice").textContent = barcaPriceRaw;
@@ -160,26 +159,24 @@ function selectOrder(orderId) {
   const freightValue = parseFloat(String(order.freight).replace(',', '.')) || 0;
   document.getElementById("detFreight").textContent = freightValue > 0 ? `R$ ${freightValue.toFixed(2).replace('.', ',')}` : "Aguardando cálculo";
 
-  // Extrai o número do valor da barca (ex: de "R$ 190" tira "190")
-  const barcaNumber = parseFloat(barcaPriceRaw.replace(/[^\d]/g, "")) || 0;
+  const barcaNumber = parseFloat(barcaPriceRaw.replace("R$ ", "").replace(",", ".")) || 0;
   
   if (freightValue > 0 && barcaNumber > 0) {
     const total = barcaNumber + freightValue;
     document.getElementById("detTotal").textContent = `R$ ${total.toFixed(2).replace('.', ',')}`;
-    document.getElementById("btnSendFreight").style.display = "flex"; // Mostra o botão
+    document.getElementById("btnSendFreight").style.display = "flex";
   } else {
     document.getElementById("detTotal").textContent = "--";
-    document.getElementById("btnSendFreight").style.display = "none"; // Esconde se não tiver frete ainda
+    document.getElementById("btnSendFreight").style.display = "none";
   }
   document.getElementById("detObs").textContent = order.obs;
   document.getElementById("detPhone").textContent = order.phone;
   document.getElementById("detAddress").textContent = order.address;
   document.getElementById("detComplement").textContent = order.complement;
 
-  // Atualizando as cores e estados visuais do Badge e dos Botões
   const badge = document.getElementById("detStatusBadge");
   badge.textContent = order.status;
-  badge.className = "status-tag"; // Reseta classes
+  badge.className = "status-tag";
   
   if (order.status === "Pendente") badge.classList.add("status-pendente");
   if (order.status === "Em Preparo") badge.classList.add("status-preparo");
@@ -187,7 +184,7 @@ function selectOrder(orderId) {
   if (order.status === "Entregue") badge.classList.add("status-entregue");
   if (order.status === "Cancelado") badge.classList.add("status-cancelado");
   if (order.status === "Aguardando Frete") badge.classList.add("status-aguardando");
-  // Regras visuais para Cancelamento
+  
   if (order.status === "Cancelado") {
     btnCancelOrder.classList.add("active");
     btnCancelOrder.textContent = "Pedido Cancelado";
@@ -202,7 +199,7 @@ function selectOrder(orderId) {
   renderTimeline();
 }
 
-// --- Event Listeners (Fora da função selectOrder) ---
+// --- Event Listeners ---
 
 document.getElementById("btnWhatsapp").addEventListener("click", () => {
   const order = ordersDatabase.find(o => o.id === activeOrderId);
@@ -218,6 +215,27 @@ btnCancelOrder.addEventListener("click", () => {
   }
 });
 
+// --- LÓGICA DE EXCLUSÃO DE PEDIDO ---
+if (btnDeleteOrder) {
+  btnDeleteOrder.addEventListener("click", () => {
+    const order = ordersDatabase.find(o => o.id === activeOrderId);
+    if (!order) return;
+
+    const confirmDelete = confirm(`ATENÇÃO: Tem certeza que deseja excluir PERMANENTEMENTE o pedido ${order.id} de ${order.customerName}?\n\nEssa ação não poderá ser desfeita.`);
+    
+    if (confirmDelete) {
+      ordersDatabase = ordersDatabase.filter(o => o.id !== activeOrderId);
+      saveDatabase(); 
+      
+      activeOrderId = null;
+      activeDetails.classList.add("hidden");
+      emptyDetails.style.display = "flex";
+      
+      renderTimeline();
+    }
+  });
+}
+
 btnAdvanceStatus.addEventListener("click", () => {
   const order = ordersDatabase.find(o => o.id === activeOrderId);
   if (!order || order.status === "Cancelado") return;
@@ -225,7 +243,6 @@ btnAdvanceStatus.addEventListener("click", () => {
   let newStatus = "";
   let statusMessage = "";
 
-  // Define o novo status e a mensagem correspondente
   if (order.status === "Aguardando Frete") {
     newStatus = "Pendente";
   } 
@@ -242,17 +259,14 @@ btnAdvanceStatus.addEventListener("click", () => {
     statusMessage = `🛵 O seu pedido *#${order.id}* acabou de sair para entrega (ou foi retirado)! Muito obrigado por escolher o Dedé Sushi. Bom apetite! 🍣🥢`;
   } 
   else if (order.status === "Entregue") {
-    newStatus = "Aguardando Frete"; // Reinicia o ciclo (opcional)
+    newStatus = "Aguardando Frete";
   }
 
-  // Atualiza o banco de dados
   order.status = newStatus;
   saveDatabase(); 
   selectOrder(order.id);
 
-  // Se houver uma mensagem configurada para esse status, cria o pop-up de confirmação
   if (statusMessage) {
-    // Timeout pequeno apenas para garantir que a tela atualize o visual antes do alerta aparecer
     setTimeout(() => {
       const wantToSend = confirm(`O status mudou para "${newStatus}". Deseja enviar um aviso automático no WhatsApp do cliente?`);
       
@@ -265,16 +279,28 @@ btnAdvanceStatus.addEventListener("click", () => {
 });
 
 // Inicialização da página
+// Destrava o áudio no primeiro clique do usuário no painel
+document.addEventListener("click", () => {
+  const audio = document.getElementById("notificationSound");
+  if (audio) {
+    audio.play().then(() => {
+      audio.pause();
+      audio.currentTime = 0;
+    }).catch(() => {});
+  }
+}, { once: true }); // Roda apenas uma vez
+
 document.addEventListener("DOMContentLoaded", () => {
-  // Inicializa o calendário novo primeiro
   initDatePicker();
   
-  // Define a data de hoje no calendário
   const today = new Date().toISOString().split("T")[0];
   datePickerInstance.setDate(today);
   
   renderTimeline();
-  if (ordersDatabase.length > 0) selectOrder(ordersDatabase[0].id);
+  
+  activeOrderId = null;
+  activeDetails.classList.add("hidden");
+  emptyDetails.style.display = "flex";
 });
 
 // --- INICIALIZAÇÃO DO CALENDÁRIO CUSTOMIZADO ---
@@ -285,20 +311,15 @@ function initDatePicker() {
     locale: "pt",
     dateFormat: "Y-m-d",
     onChange: function(selectedDates, dateStr, instance) {
-      // Quando o usuário escolhe uma data, atualiza a tela
       activeOrderId = null;
       activeDetails.classList.add("hidden");
       emptyDetails.style.display = "flex";
       renderTimeline();
     },
     onDayCreate: function(dObj, dStr, fp, dayElem) {
-      // Pega a data desenhada no calendário no formato YYYY-MM-DD
       const dateStrFormat = flatpickr.formatDate(dayElem.dateObj, "Y-m-d");
-      
-      // Verifica se existe algum pedido nessa data
       const hasOrder = ordersDatabase.some(order => order.date === dateStrFormat);
       
-      // Se tiver pedido, injeta o dot vermelho
       if (hasOrder) {
         dayElem.innerHTML += '<span class="has-order-dot"></span>';
       }
@@ -328,14 +349,12 @@ function closeModal() {
   newOrderForm.reset();
 }
 
-// 1. ABRIR MODAL: NOVO PEDIDO (Vazio)
 if (btnNewOrder) {
   btnNewOrder.addEventListener("click", () => {
     isEditing = false;
     modalTitle.innerHTML = `<i data-lucide="plus-circle" class="icon-sm text-primary"></i> Adicionar Pedido Manual`;
     modalSubmitBtn.textContent = "Salvar Pedido";
     
-    // Já preenche o input de data com a data atual do filtro para facilitar
     document.getElementById("addDate").value = document.getElementById("dateFilter").value;
     
     openModal();
@@ -343,7 +362,6 @@ if (btnNewOrder) {
   });
 }
 
-// 2. ABRIR MODAL: EDITAR PEDIDO (Preenchido)
 if (btnEditOrder) {
   btnEditOrder.addEventListener("click", () => {
     const order = ordersDatabase.find(o => o.id === activeOrderId);
@@ -357,12 +375,27 @@ if (btnEditOrder) {
     document.getElementById("addPhone").value = order.phone;
     document.getElementById("addAddress").value = order.address;
     document.getElementById("addComplement").value = order.complement !== "Nenhum" ? order.complement : "";
-    document.getElementById("addDate").value = order.date; // <--- Puxa a data do pedido
+    document.getElementById("addDate").value = order.date; 
     document.getElementById("addTime").value = order.time;
     document.getElementById("addObs").value = order.obs !== "Nenhuma observação informada." ? order.obs : "";
     document.getElementById("addFreight").value = order.freight || "";
     
-    if (order.paymentMethod) document.getElementById("addPayment").value = order.paymentMethod;
+    if (order.paymentMethod) {
+      let pm = order.paymentMethod;
+      
+      if (pm === "Pix") pm = "Pix (Aguardando)";
+      if (pm === "Cartão de Crédito") pm = "Cartão de Crédito (na entrega)";
+      if (pm === "Cartão de Débito") pm = "Cartão de Débito (na entrega)";
+      if (pm === "Dinheiro") pm = "Dinheiro (na entrega)";
+      
+      const paymentSelect = document.getElementById("addPayment");
+      
+      if (!Array.from(paymentSelect.options).some(opt => opt.value === pm)) {
+        paymentSelect.add(new Option(pm, pm));
+      }
+      
+      paymentSelect.value = pm;
+    }
     if (order.allowShrimp) document.getElementById("addShrimp").value = order.allowShrimp;
     if (order.rawType) document.getElementById("addType").value = order.rawType;
     if (order.rawSize) document.getElementById("addSize").value = order.rawSize;
@@ -372,29 +405,26 @@ if (btnEditOrder) {
   });
 }
 
-// Fechar Modal
 btnCloseModal.addEventListener("click", closeModal);
 btnCancelModal.addEventListener("click", closeModal);
 modalOverlay.addEventListener("click", (e) => {
   if (e.target === modalOverlay) closeModal();
 });
 
-// 3. SUBMETER FORMULÁRIO (CRIAR OU ATUALIZAR)
 newOrderForm.addEventListener("submit", (e) => {
   e.preventDefault();
 
   const type = document.getElementById("addType").value;
   const size = document.getElementById("addSize").value;
   const fullSizeName = `Barca ${type} - ${size}`;
-  const dateValue = document.getElementById("addDate").value; // <--- Pega a nova data digitada
+  const dateValue = document.getElementById("addDate").value; 
 
   if (isEditing) {
-    // ATUALIZAR PEDIDO EXISTENTE
     const orderIndex = ordersDatabase.findIndex(o => o.id === activeOrderId);
     if (orderIndex > -1) {
       ordersDatabase[orderIndex].customerName = document.getElementById("addName").value;
       ordersDatabase[orderIndex].phone = document.getElementById("addPhone").value;
-      ordersDatabase[orderIndex].date = dateValue; // <--- Atualiza a data
+      ordersDatabase[orderIndex].date = dateValue; 
       ordersDatabase[orderIndex].time = document.getElementById("addTime").value;
       ordersDatabase[orderIndex].rawType = type; 
       ordersDatabase[orderIndex].rawSize = size; 
@@ -410,14 +440,12 @@ newOrderForm.addEventListener("submit", (e) => {
     saveDatabase(); 
     closeModal();
     
-    // Muda a visualização para o dia que foi selecionado na edição
     document.getElementById("dateFilter").value = dateValue; 
     
     renderTimeline();
     selectOrder(activeOrderId);
 
   } else {
-    // CRIAR NOVO PEDIDO
     const randomId = Math.floor(Math.random() * 9000) + 1000;
     const newId = `BC-${randomId}`;
     const now = new Date();
@@ -428,7 +456,7 @@ newOrderForm.addEventListener("submit", (e) => {
       customerName: document.getElementById("addName").value,
       phone: document.getElementById("addPhone").value,
       time: document.getElementById("addTime").value,
-      date: dateValue, // <--- Usa a data digitada
+      date: dateValue, 
       createdAt: `Hoje, ${timeString}`,
       rawType: type,     
       rawSize: size,     
@@ -439,14 +467,14 @@ newOrderForm.addEventListener("submit", (e) => {
       address: document.getElementById("addAddress").value,
       complement: document.getElementById("addComplement").value || "Nenhum",
       status: "Pendente",
-      isManual: true
+      isManual: true,
+      freight: document.getElementById("addFreight").value 
     };
 
     ordersDatabase.push(newOrder);
     saveDatabase(); 
     closeModal();
     
-    // Muda a visualização para o dia em que o pedido foi criado
     document.getElementById("dateFilter").value = dateValue; 
     
     renderTimeline();
@@ -471,14 +499,13 @@ if (phoneInput) {
 const freightInput = document.getElementById("addFreight");
 if (freightInput) {
   freightInput.addEventListener("input", (e) => {
-    let value = e.target.value.replace(/\D/g, ""); // Remove tudo que não é número
+    let value = e.target.value.replace(/\D/g, "");
     
     if (value === "") {
       e.target.value = "";
       return;
     }
     
-    // Converte para decimal (ex: 1500 vira 15.00) e troca o ponto por vírgula
     value = (parseInt(value, 10) / 100).toFixed(2);
     e.target.value = value.replace(".", ",");
   });
@@ -486,16 +513,13 @@ if (freightInput) {
 
 // --- SISTEMA DE NOTIFICAÇÃO EM TEMPO REAL ---
 
-// Função que cria e exibe o pop-up na tela
 function showNotification(order) {
-  // 1. Tocar Áudio
   const audio = document.getElementById("notificationSound");
   if (audio) {
-    audio.currentTime = 0; // Reseta o áudio caso toque duas vezes rápido
+    audio.currentTime = 0; 
     audio.play().catch(err => console.log("Áudio bloqueado pelo navegador até o usuário clicar na tela."));
   }
 
-  // 2. Criar Pop-up Visual
   const toastContainer = document.getElementById("toastContainer");
   if (!toastContainer) return;
 
@@ -514,25 +538,20 @@ function showNotification(order) {
   toastContainer.appendChild(toast);
   if (window.lucide) lucide.createIcons();
 
-  // Faz o pop-up sumir automaticamente após 6 segundos
   setTimeout(() => {
     toast.classList.add("hiding");
     toast.addEventListener("animationend", () => toast.remove());
   }, 6000);
 }
 
-// 3. O "Ouvinte" que percebe quando o cliente salva um pedido lá no localStorage
 window.addEventListener('storage', (e) => {
   if (e.key === 'sushiOrdersDatabase') {
     const newData = JSON.parse(e.newValue) || [];
     
-    // Verifica se a lista nova é maior que a atual (ou seja, um pedido novo chegou)
     if (newData.length > ordersDatabase.length) {
       const newOrder = newData[newData.length - 1]; 
-      
       ordersDatabase = newData; 
       
-      // Checa se o novo pedido é para o dia atual do filtro. Se não for, não muda o foco, apenas notifica.
       const currentFilter = document.getElementById("dateFilter").value;
       if(newOrder.date === currentFilter) {
           renderTimeline();         
@@ -540,7 +559,6 @@ window.addEventListener('storage', (e) => {
       
       showNotification(newOrder); 
     } else {
-      // Se só houve uma edição (sem aumentar o número de pedidos), apenas atualiza a tela
       ordersDatabase = newData;
       renderTimeline();
     }
@@ -553,8 +571,23 @@ document.getElementById("btnSendFreight").addEventListener("click", () => {
 
   const barcaPrice = getOrderPrice(order.rawType, order.rawSize);
   const freightValue = parseFloat(String(order.freight).replace(',', '.')) || 0;
-  const barcaNumber = parseFloat(barcaPrice.replace(/[^\d]/g, "")) || 0;
+  const barcaNumber = parseFloat(barcaPrice.replace("R$ ", "").replace(",", ".")) || 0;
   const total = barcaNumber + freightValue;
+
+  const today = new Date();
+  const todayISO = new Date(today.getTime() - (today.getTimezoneOffset() * 60000)).toISOString().split("T")[0];
+  
+  let scheduleText = "";
+
+  if (order.date === todayISO) {
+    scheduleText = `hoje às ${order.time}`;
+  } else {
+    const [year, month, day] = order.date.split("-");
+    const orderDateObj = new Date(year, month - 1, day);
+    const weekDay = orderDateObj.toLocaleDateString('pt-BR', { weekday: 'long' });
+    
+    scheduleText = `${weekDay} (${day}/${month}) às ${order.time}`;
+  }
 
   const msg = `
 ✅ *O Frete do seu pedido foi calculado!*
@@ -566,7 +599,7 @@ Pedido: #${order.id}
 
 Forma de pagamento escolhida: *${order.paymentMethod}*
 
-Podemos confirmar o seu agendamento para as *${order.time}*? 
+Podemos confirmar o seu agendamento para *${scheduleText}*? 
 👉 *Responda SIM ou NÃO*
   `.trim();
 
@@ -579,8 +612,8 @@ if (btnLogout) {
   btnLogout.addEventListener("click", () => {
     const confirmLogout = confirm("Deseja realmente sair do painel?");
     if (confirmLogout) {
-      localStorage.removeItem("sushiAdminLoggedIn"); // Apaga a chave de acesso
-      window.location.href = "login.html"; // Redireciona pro login
+      localStorage.removeItem("sushiAdminLoggedIn");
+      window.location.href = "login.html";
     }
   });
 }

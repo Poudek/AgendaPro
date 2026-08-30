@@ -8,7 +8,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <script src="https://unpkg.com/lucide@latest"></script>
-  <link rel="stylesheet" href="../css/cliente.css">
+  <!-- CAMINHO CORRIGIDO: usa ./ em vez de ../ -->
+  <link rel="stylesheet" href="./css/cliente.css">
 </head>
 <body>
 
@@ -37,7 +38,7 @@
         </div>
         <div class="input-group">
           <label for="clientPhone">WhatsApp</label>
-          <input type="tel" id="clientPhone" required placeholder="(00) 00000-0000" maxlength="15">
+          <input type="text" id="clientPhone" required placeholder="(85) 99999-9999" maxlength="15">
         </div>
       </section>
 
@@ -101,9 +102,8 @@
           </div>
           <div class="input-group">
             <label for="orderTime">Horário</label>
-            <!-- Alterado para select -->
             <select id="orderTime" required>
-              <option value="" disabled selected>Selecione a data primeiro</option>
+              <option value="" disabled selected>Selecione um horário</option>
             </select>
           </div>
         </div>
@@ -133,6 +133,10 @@
     </form>
   </main>
 
-  <script src="../js/cliente.js"></script>
+  <!-- CAMINHO CORRIGIDO: usa ./ em vez de ../ -->
+  <script src="./js/cliente.js"></script>
+  <script>
+    if (window.lucide) lucide.createIcons();
+  </script>
 </body>
 </html>

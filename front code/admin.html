@@ -100,6 +100,10 @@
           </div>
           
           <div style="display: flex; align-items: center; gap: 12px;">
+            <!-- NOVO BOTÃO DE EXCLUIR -->
+            <button class="btn-cancel" id="btnDeleteOrder" style="padding: 8px; border: none; background: transparent; color: #ef4444; cursor: pointer;" title="Excluir Pedido Permanentemente">
+              <i data-lucide="trash-2" class="icon-sm"></i>
+            </button>
             <button id="btnEditOrder" class="btn-cancel" style="padding: 6px 12px; border: 1px solid var(--c-700); font-size: 0.9rem;" title="Editar Pedido">
               <i data-lucide="edit" class="icon-sm"></i> Editar
             </button>
@@ -303,7 +307,7 @@
 
   <script src="./js/admin.js"></script>
   <!-- ÁUDIO DE NOTIFICAÇÃO PARA COZINHA -->
-  <audio id="notificationSound" src="https://actions.google.com/sounds/v1/alarms/phone_ringing.ogg" preload="auto"></audio>
+  <audio id="notificationSound" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3" preload="auto"></audio>
 <!-- SCRIPT DE PROTEÇÃO DE TELA -->
   <script>
     if (localStorage.getItem("sushiAdminLoggedIn") !== "true") {
