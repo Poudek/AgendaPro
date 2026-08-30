@@ -280,26 +280,6 @@ btnAdvanceStatus.addEventListener("click", () => {
   }
 });
 
-document.addEventListener("DOMContentLoaded", () => {
-  initDatePicker();
-  const today = new Date().toISOString().split("T")[0];
-  datePickerInstance.setDate(today);
-  renderTimeline();
-  activeOrderId = null;
-  activeDetails.classList.add("hidden");
-  emptyDetails.style.display = "flex";
-  
-  document.addEventListener("click", () => {
-    const audio = document.getElementById("notificationSound");
-    if (audio) {
-      audio.play().then(() => {
-        audio.pause();
-        audio.currentTime = 0;
-      }).catch(() => {});
-    }
-  }, { once: true });
-});
-
 let datePickerInstance;
 function initDatePicker() {
   datePickerInstance = flatpickr("#dateFilter", {
@@ -320,6 +300,37 @@ function initDatePicker() {
     }
   });
 }
+
+document.addEventListener("DOMContentLoaded", () => {
+  initDatePicker();
+  const today = new Date().toISOString().split("T")[0];
+  datePickerInstance.setDate(today);
+  renderTimeline();
+  activeOrderId = null;
+  activeDetails.classList.add("hidden");
+  emptyDetails.style.display = "flex";
+  
+  // Destrava áudio de forma mais agressiva (Click, Toque ou Teclado)
+  const unlockAudio = () => {
+    const audio = document.getElementById("notificationSound");
+    if (audio) {
+      audio.volume = 1.0;
+      audio.muted = false;
+      audio.play().then(() => {
+        audio.pause();
+        audio.currentTime = 0;
+      }).catch(() => {});
+    }
+    // Remove os eventos após destravar na primeira vez
+    ['click', 'touchstart', 'keydown'].forEach(evt => {
+      document.removeEventListener(evt, unlockAudio);
+    });
+  };
+
+  ['click', 'touchstart', 'keydown'].forEach(evt => {
+    document.addEventListener(evt, unlockAudio, { once: true });
+  });
+});
 
 // --- LÓGICA DO MODAL (CARRINHO ADMIN COM QUANTIDADES) ---
 let adminCartItems = [];
@@ -609,9 +620,12 @@ if (freightInput) {
 function showNotification(order) {
   const audio = document.getElementById("notificationSound");
   if (audio) {
+    audio.volume = 1.0;
+    audio.muted = false;
     audio.currentTime = 0; 
-    audio.play().catch(err => console.log("Áudio bloqueado."));
+    audio.play().catch(err => console.log("Áudio bloqueado pelo navegador. O usuário precisa interagir com a tela primeiro."));
   }
+  
   const toastContainer = document.getElementById("toastContainer");
   if (!toastContainer) return;
 
@@ -632,19 +646,30 @@ function showNotification(order) {
   setTimeout(() => {
     toast.classList.add("hiding");
     toast.addEventListener("animationend", () => toast.remove());
-  }, 6000);
+  }, 8000);
 }
 
+// --- ESCUTADOR DE NOVOS PEDIDOS EM TEMPO REAL ---
 window.addEventListener('storage', (e) => {
   if (e.key === 'sushiOrdersDatabase') {
     const newData = JSON.parse(e.newValue) || [];
+    
+    // Se o array novo for maior que o atual, significa que chegou pedido novo!
     if (newData.length > ordersDatabase.length) {
       const newOrder = newData[newData.length - 1]; 
       ordersDatabase = newData; 
+      
       const currentFilter = document.getElementById("dateFilter").value;
-      if(newOrder.date === currentFilter) renderTimeline();         
+      
+      // Se o pedido novo for para a mesma data que o admin está visualizando, atualiza a lista
+      if (newOrder.date === currentFilter) {
+        renderTimeline();         
+      }
+      
+      // Dispara o alerta sonoro e visual
       showNotification(newOrder); 
     } else {
+      // Se não for maior, foi apenas uma edição ou exclusão
       ordersDatabase = newData;
       renderTimeline();
     }
@@ -766,15 +791,10 @@ function generateReportHTML(period) {
     endDate = tomorrowISO;
     periodLabel = `Previsão de Amanhã (${tomorrowISO.split('-').reverse().join('/')})`;
   } else if (period === 'semana') {
-    // Nova regra Dedé Sushi: Semana começa na Quarta (3) e vai até Segunda (1)
     const currentDay = now.getDay(); 
-    
-    // Calcula quantos dias se passaram desde a última quarta-feira
-    // Se hoje for terça (2), ele vai olhar 6 dias para trás (quarta passada)
     const daysSinceWednesday = (currentDay + 7 - 3) % 7; 
     
     const startOfWeek = new Date(now.getTime() - (daysSinceWednesday * 86400000));
-    // A segunda-feira sempre cai 5 dias após a quarta-feira inicial do ciclo
     const endOfWeek = new Date(startOfWeek.getTime() + (5 * 86400000));
     
     startDate = new Date(startOfWeek.getTime() - (startOfWeek.getTimezoneOffset() * 60000)).toISOString().split("T")[0];
@@ -791,10 +811,8 @@ function generateReportHTML(period) {
     periodLabel = `Fechamento Mensal (${monthNames[now.getMonth()]} de ${year})`;
   }
 
-  // Filtra pedidos do período (ignorando cancelados)
   const filtered = ordersDatabase.filter(o => o.date >= startDate && o.date <= endDate && o.status !== "Cancelado");
 
-  // Consolidação (Agrupamento) de Itens para a Cozinha
   const prepList = {};
   let totalRevenue = 0;
   let totalOrders = filtered.length;
@@ -823,7 +841,6 @@ function generateReportHTML(period) {
     }
   });
 
-  // Monta a estrutura em HTML do Documento de Impressão
   const printWindow = window.open('', '_blank');
   let itemsHtml = '';
 
