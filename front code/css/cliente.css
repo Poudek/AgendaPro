@@ -183,3 +183,33 @@ body {
 }
 
 .btn-submit:active { background-color: var(--c-accent-hover); }
+
+/* =========================================
+   AJUSTES DE RESPONSIVIDADE (MOBILE)
+========================================= */
+
+/* Garante que os campos respeitem o tamanho da caixa, sem vazar */
+input, select, textarea {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  text-overflow: ellipsis;
+}
+
+/* Em telas menores que 600px (celulares), empilha os campos lado a lado */
+@media (max-width: 600px) {
+  .input-row {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 16px !important;
+  }
+  
+  /* Ajusta margens internas dos cards para aproveitar melhor o espaço da tela */
+  .form-card {
+    padding: 16px !important;
+  }
+  
+  .app-container {
+    padding: 16px 12px 100px 12px !important; /* Mantém espaço pro botão fixo embaixo */
+  }
+}
