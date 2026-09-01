@@ -12,6 +12,15 @@
 </head>
 <body>
 
+  <!-- TELA DE BLOQUEIO DE PEDIDOS (INICIA ESCONDIDA) -->
+  <div id="freezeOverlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(18, 18, 18, 0.95); backdrop-filter: blur(10px); z-index: 9999; flex-direction: column; align-items: center; justify-content: center; padding: 20px; text-align: center; color: #fff;">
+    <i data-lucide="store" style="width: 72px; height: 72px; color: #ef4444; margin-bottom: 20px;"></i>
+    <h2 style="font-size: 2rem; margin-bottom: 12px; font-weight: 800;">Capacidade Máxima Atingida!</h2>
+    <p style="font-size: 1.1rem; color: #aaa; max-width: 400px; line-height: 1.6;">
+      Agradecemos demais a preferência, mas nossa cozinha atingiu o limite máximo de barcas por enquanto. <br><br> Tente novamente mais tarde ou amanhã! 🍣
+    </p>
+  </div>
+
   <header class="app-header">
     <div class="logo-wrapper">
       <i data-lucide="utensils-crossed" class="logo-icon"></i>
@@ -74,9 +83,8 @@
           <div class="input-group">
             <label for="orderShrimp">Camarão?</label>
             <select id="orderShrimp">
-              <option value="Sim, liberado">Sim</option>
-              <option value="Não (Alergia)">Não (Alergia)</option>
-              <option value="Não (Preferência)">Não (Preferência)</option>
+              <option value="Sim">Sim</option>
+              <option value="Não">Não</option>
             </select>
           </div>
         </div>

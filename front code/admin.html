@@ -31,6 +31,9 @@
         <i data-lucide="calendar" class="icon-sm"></i>
         <input type="date" id="dateFilter" class="input-control">
       </div>
+      <button class="btn-advance" id="btnToggleFreeze" style="padding: 8px 16px; background-color: var(--warning); color: #121212; border: none; font-weight: bold;">
+        <i data-lucide="pause-circle" class="icon-sm"></i> Pausar Pedidos
+      </button>
       <button class="btn-advance" id="btnOpenReports" style="padding: 8px 16px; background-color: var(--c-700); color: white; border: 1px solid var(--c-600);">
         <i data-lucide="file-text" class="icon-sm"></i> Relatórios
       </button>
@@ -242,9 +245,8 @@
             <div class="form-group">
               <label>Camarão?</label>
               <select id="addShrimp">
-                <option value="Sim, liberado">Sim, liberado</option>
-                <option value="Não (Alergia)">Não (Alergia)</option>
-                <option value="Não (Preferência)">Não (Preferência)</option>
+                <option value="Sim">Sim</option>
+                <option value="Não">Não</option>
               </select>
             </div>
             <div class="form-group full-width">

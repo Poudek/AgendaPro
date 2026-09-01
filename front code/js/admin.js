@@ -929,3 +929,35 @@ function generateReportHTML(period) {
   printWindow.document.write(html);
   printWindow.document.close();
 }
+
+// --- SISTEMA DE CONGELAMENTO DE PEDIDOS ---
+const btnToggleFreeze = document.getElementById("btnToggleFreeze");
+
+function updateFreezeButtonUI() {
+  if (!btnToggleFreeze) return;
+  const isFrozen = localStorage.getItem("sushiFreezeState") === "true";
+  
+  if (isFrozen) {
+    btnToggleFreeze.innerHTML = `<i data-lucide="play-circle" class="icon-sm"></i> Liberar Pedidos`;
+    btnToggleFreeze.style.backgroundColor = "var(--success)";
+    btnToggleFreeze.style.color = "#fff";
+  } else {
+    btnToggleFreeze.innerHTML = `<i data-lucide="pause-circle" class="icon-sm"></i> Pausar Pedidos`;
+    btnToggleFreeze.style.backgroundColor = "var(--warning)";
+    btnToggleFreeze.style.color = "#121212";
+  }
+  if (window.lucide) lucide.createIcons();
+}
+
+if (btnToggleFreeze) {
+  btnToggleFreeze.addEventListener("click", () => {
+    const isFrozen = localStorage.getItem("sushiFreezeState") === "true";
+    localStorage.setItem("sushiFreezeState", !isFrozen);
+    updateFreezeButtonUI();
+  });
+}
+
+// Chama a função ao iniciar para ajustar a cor do botão se já estiver pausado
+document.addEventListener("DOMContentLoaded", () => {
+  updateFreezeButtonUI();
+});

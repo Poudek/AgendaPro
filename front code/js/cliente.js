@@ -352,3 +352,29 @@ ${barcasMessageList}
     window.open(`https://wa.me/${WHATSAPP_RESTAURANTE}?text=${encodedMessage}`, "_blank");
   });
 }
+
+// --- VERIFICAÇÃO DE LOTAÇÃO / CONGELAMENTO DE PEDIDOS ---
+function checkFreezeState() {
+  const overlay = document.getElementById("freezeOverlay");
+  if (!overlay) return;
+  
+  const isFrozen = localStorage.getItem("sushiFreezeState") === "true";
+  
+  if (isFrozen) {
+    overlay.style.display = "flex";
+    document.body.style.overflow = "hidden"; // Trava a rolagem da página
+  } else {
+    overlay.style.display = "none";
+    document.body.style.overflow = "auto";
+  }
+}
+
+// Checa a lotação logo que o site do cliente carrega
+checkFreezeState();
+
+// Escuta mudanças em tempo real caso o Admin aperte o botão enquanto o cliente está no site
+window.addEventListener('storage', (e) => {
+  if (e.key === 'sushiFreezeState') {
+    checkFreezeState();
+  }
+});
