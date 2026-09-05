@@ -17,13 +17,8 @@
 
   <header class="topbar">
     <div class="topbar-brand">
-      <div class="brand-logo-wrapper">
-        <i data-lucide="utensils-crossed" class="logo-icon"></i>
-      </div>
-      <div class="brand-text">
-        <h1>Dedé Sushi - Barcas</h1>
-        <small>Gestão de Encomendas Especiais</small>
-      </div>
+      <img src="./assets/logo.png" alt="Dedé Sushi" class="brand-logo-free">
+      
     </div>
 
     <div class="topbar-controls">
@@ -34,7 +29,7 @@
       <button class="btn-advance" id="btnToggleFreeze" style="padding: 8px 16px; background-color: var(--warning); color: #121212; border: none; font-weight: bold;">
         <i data-lucide="pause-circle" class="icon-sm"></i> Pausar Pedidos
       </button>
-      <button class="btn-advance" id="btnOpenReports" style="padding: 8px 16px; background-color: var(--c-700); color: white; border: 1px solid var(--c-600);">
+      <button class="btn-advance" id="btnOpenReports" style="padding: 8px 16px; background-color: var(--c-700); color: #121212; border: 1px solid var(--c-600);">
         <i data-lucide="file-text" class="icon-sm"></i> Relatórios
       </button>
       <button class="btn-advance" id="btnNewOrder" style="padding: 8px 16px;">
@@ -220,14 +215,26 @@
               <label>WhatsApp / Telefone</label>
               <input type="text" id="addPhone" required placeholder="Ex: (85) 99999-9999" maxlength="15">
             </div>
-            <div class="form-group full-width">
-              <label>Endereço Completo</label>
-              <input type="text" id="addAddress" required placeholder="Rua, Número, Bairro">
-            </div>
-            <div class="form-group full-width">
-              <label>Complemento / Referência</label>
-              <input type="text" id="addComplement" placeholder="Apto, Bloco, Cor da Casa...">
-            </div>
+            <!-- TIPO DE RECEBIMENTO -->
+        <div class="form-group full-width" style="margin-bottom: 16px;">
+          <label>Tipo de Recebimento</label>
+          <select id="addDeliveryType" class="input-control" style="width: 100%;">
+            <option value="Entrega">Entrega (Delivery)</option>
+            <option value="Retirada">Retirada no Balcão</option>
+          </select>
+        </div>
+
+        <!-- ENDEREÇO -->
+        <div class="form-group full-width" style="width: 100%; display: flex; margin-bottom: 16px;">
+          <label for="addAddress" style="display: block; margin-bottom: 6px; font-size: 0.85rem; color: var(--text-muted); font-weight: 500;">Endereço Completo</label>
+          <input type="text" id="addAddress" class="input-control" style="width: 100%;" placeholder="Rua, Número, Bairro">
+        </div>
+
+        <!-- COMPLEMENTO -->
+        <div class="form-group full-width" style="width: 100%; display: flex; margin-bottom: 16px;">
+          <label for="addComplement" style="display: block; margin-bottom: 6px; font-size: 0.85rem; color: var(--text-muted); font-weight: 500;">Complemento / Referência</label>
+          <input type="text" id="addComplement" class="input-control" style="width: 100%;" placeholder="Apto, Bloco, Cor da Casa...">
+        </div>
           </div>
         </div>
 
@@ -261,7 +268,7 @@
             </div>
           </div>
           
-          <button type="button" id="btnAddBarcaAdmin" style="margin-top: 14px; width: 100%; padding: 10px; background: rgba(239, 68, 68, 0.15); border: 1px dashed var(--primary, #ef4444); color: #fff; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">
+          <button type="button" id="btnAddBarcaAdmin" style="margin-top: 14px; width: 100%; padding: 10px; background: var(--primary, #fc0303); border: 1px dashed var(--primary, #ef4444); color: #fff; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">
             <i data-lucide="plus-circle" style="width: 18px; height: 18px;"></i> Adicionar Item
           </button>
 
@@ -297,10 +304,11 @@
                 <option value="Dinheiro (na entrega)">Dinheiro (Entrega)</option>
               </select>
             </div>
-            <div class="form-group">
-              <label>Frete (R$)</label>
-              <input type="text" id="addFreight" placeholder="0,00">
-            </div>
+            <!-- FRETE -->
+<div class="input-group" style="margin-bottom: 16px;">
+  <label for="addFreight" style="display: block; margin-bottom: 6px; font-size: 0.85rem; color: var(--text-muted); font-weight: 500;">Frete (R$)</label>
+  <input type="text" id="addFreight" class="input-control" placeholder="0,00">
+</div>
             <div class="form-group full-width">
               <label>Observações Adicionais</label>
               <textarea id="addObs" rows="2" placeholder="Restrições, troca de peças, hashis extras..."></textarea>

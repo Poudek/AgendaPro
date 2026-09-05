@@ -1,23 +1,23 @@
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 
 :root {
-  /* Base Dark Mode: Pretos e Cinzas */
-  --c-900: #050505; /* Fundo Principal (Preto profundo) */
-  --c-800: #121212; /* Superfícies / Cards (Cinza quase preto) */
-  --c-700: #262626; /* Bordas e Linhas divisórias */
-  --c-600: #1e1e1e; /* Hovers nos cards */
+  /* Base Light Mode: Brancos e Cinzas Claros */
+  --c-900: #f4f4f5; /* Fundo Principal (Cinza bem claro) */
+  --c-800: #ffffff; /* Superfícies / Cards (Branco puro) */
+  --c-700: #e4e4e7; /* Bordas e Linhas divisórias (Cinza claro) */
+  --c-600: #f9fafb; /* Hovers nos cards (Cinza gelo) */
   
-  /* Destaque: Vermelho da Paleta */
+  /* Destaque: Vermelho da Paleta (Mantido intacto) */
   --c-500: #ad2831; /* Botões e destaques principais */
   --c-accent-hover: #c9323c; /* Hover do botão vermelho */
 
-  /* Textos */
-  --text-main: #f5f5f5;
-  --text-muted: #a3a3a3;
+  /* Textos (Invertidos para contraste no claro) */
+  --text-main: #18181b; /* Texto principal (Quase preto) */
+  --text-muted: #52525b; /* Texto secundário (Cinza escuro) */
   
   /* Semânticas */
-  --success: #34d399;
-  --warning: #fbbf24;
+  --success: #22c55e; /* Levemente ajustado para melhor leitura no branco */
+  --warning: #facc15;
   --danger: #ef4444;
 }
 
@@ -96,14 +96,12 @@ body {
   gap: 16px;
 }
 
-.brand-logo-wrapper {
-  width: 48px; height: 48px;
-  background: var(--c-500);
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 4px 12px rgba(173, 40, 49, 0.2);
+.brand-logo-free {
+  height: 52px;
+  width: auto;
+  max-width: 120px;
+  object-fit: contain;
+  display: block;
 }
 
 .logo-icon { color: var(--text-main); width: 24px; height: 24px; }
@@ -361,7 +359,7 @@ button {
 .btn-advance:disabled { opacity: 0.5; cursor: not-allowed; }
 
 /* Status Cores (Ajustadas para o fundo super escuro) */
-.status-pendente { color: var(--warning); background: rgba(251, 191, 36, 0.15); }
+.status-pendente { color: #ffffff; background: var(--warning); }
 .status-preparo { color: #f87171; background: rgba(239, 68, 68, 0.15); } /* Um vermelho mais claro para dar leitura no status */
 .status-pronto { color: var(--success); background: rgba(52, 211, 153, 0.15); }
 .status-cancelado { color: var(--danger); background: rgba(239, 68, 68, 0.1); text-decoration: line-through; }
@@ -665,4 +663,36 @@ span.flatpickr-weekday {
 .btn-logout:hover {
   color: var(--c-500); /* Muda o ícone para o vermelho da marca */
   background: rgba(173, 40, 49, 0.1); /* Dá um fundinho vermelho bem suave */
+}
+
+/* =========================================
+   PADRONIZAÇÃO DOS INPUTS E SELECTS
+========================================= */
+.input-control {
+  width: 100%;
+  padding: 12px 12px;
+  background-color: var(--c-900); /* Fundo cinza clarinho para destacar no branco */
+  border: 1px solid var(--c-700);
+  border-radius: 8px;
+  color: var(--text-main);
+  font-size: 0.9rem;
+  font-family: inherit;
+  outline: none;
+  box-sizing: border-box;
+  transition: all 0.2s ease;
+}
+
+.input-control:focus {
+  border-color: var(--c-500);
+}
+
+/* Remove a caixa feia padrão do navegador no campo de seleção */
+select.input-control {
+  appearance: none;
+  -webkit-appearance: none;
+  /* Cria uma setinha moderna via código */
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2352525b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 40px; /* Dá espaço para o texto não encostar na setinha */
 }

@@ -1,7 +1,7 @@
 // 0. INICIALIZAÇÃO DOS ÍCONES
 if (window.lucide) lucide.createIcons();
 
-const WHATSAPP_RESTAURANTE = "5585999999999"; 
+const WHATSAPP_RESTAURANTE = "5585981322120"; 
 
 // --- ELEMENTOS DO DOM ---
 const dateInput = document.getElementById("orderDate");
@@ -16,8 +16,31 @@ const btnAddBarca = document.getElementById("btnAddBarca");
 const cartContainer = document.getElementById("cartContainer");
 const cartList = document.getElementById("cartList");
 
+// Elementos da modalidade de entrega/retirada
+const deliveryTypeSelect = document.getElementById("deliveryType");
+const addressFieldsContainer = document.getElementById("addressFieldsContainer");
+const clientAddressInput = document.getElementById("clientAddress");
+const pickupNotice = document.getElementById("pickupNotice");
+
 // Array temporário do Carrinho de Barcas
 let cartItems = [];
+
+// --- CONTROLE DE ENTREGA / RETIRADA ---
+if (deliveryTypeSelect) {
+  deliveryTypeSelect.addEventListener("change", (e) => {
+    const isPickup = e.target.value === "Retirada";
+    if (isPickup) {
+      addressFieldsContainer.style.display = "none";
+      pickupNotice.style.display = "block";
+      clientAddressInput.removeAttribute("required");
+      clientAddressInput.value = "";
+    } else {
+      addressFieldsContainer.style.display = "block";
+      pickupNotice.style.display = "none";
+      clientAddressInput.setAttribute("required", "required");
+    }
+  });
+}
 
 // --- 1. CONFIGURAÇÃO DE DATA MÍNIMA PARA HOJE ---
 const todayDate = new Date();
@@ -62,7 +85,7 @@ if (typeSelect) {
   typeSelect.addEventListener("change", updateSizeOptions);
 }
 
-// --- 3. GERAÇÃO DINÂMICA DE HORÁRIOS ---
+// --- 3. GERAÇÃO DINÂMICA DE HORÁRIOS (BLOQUEIA APENAS HORÁRIOS EXATOS JÁ AGENDADOS) ---
 function generateTimeSlots() {
   if (!timeSelect) return;
   timeSelect.innerHTML = "";
@@ -72,26 +95,37 @@ function generateTimeSlots() {
     return;
   }
 
-  const selectedDate = new Date(dateInput.value + "T00:00:00");
+  const selectedDateString = dateInput.value;
+  const selectedDate = new Date(selectedDateString + "T00:00:00");
   const now = new Date();
   const isToday = selectedDate.toDateString() === now.toDateString();
 
-  const openHour = 18; 
+  const openHour = 15; 
   const closeHour = 23;
 
   let minHour = openHour;
   let minMinute = 0;
 
+  // Impede que o cliente peça para um horário que já passou hoje no relógio
   if (isToday) {
-    const minTime = new Date(now.getTime() + (2 * 60 * 60 * 1000));
-    minHour = minTime.getHours();
-    minMinute = minTime.getMinutes();
+    minHour = now.getHours();
+    minMinute = now.getMinutes();
   }
 
+  // 1. Busca os pedidos do dia escolhido no banco de dados local
+  const existingOrders = JSON.parse(localStorage.getItem("sushiOrdersDatabase")) || [];
+  const ordersOnDate = existingOrders.filter(o => o.date === selectedDateString && o.status !== "Cancelado");
+  
+  // 2. Extrai apenas os horários exatos que já estão ocupados (ex: ["15:00", "19:30"])
+  const bookedTimes = ordersOnDate.map(o => o.time);
+
   let hasAvailableSlots = false;
+  timeSelect.innerHTML = '<option value="" disabled selected>Escolha o horário</option>';
 
   for (let h = openHour; h <= closeHour; h++) {
     for (let m = 0; m < 60; m += 30) {
+      
+      // Regra de horário passado: se o horário for menor que a hora atual, pula
       if (isToday) {
         if (h < minHour) continue;
         if (h === minHour && m < minMinute) continue;
@@ -100,19 +134,24 @@ function generateTimeSlots() {
       const timeString = `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
       const option = document.createElement("option");
       option.value = timeString;
-      option.textContent = timeString;
+      
+      // Se o horário atual do loop já estiver na lista de horários ocupados, bloqueia
+      if (bookedTimes.includes(timeString)) {
+        option.textContent = `${timeString} (Esgotado)`;
+        option.disabled = true;
+        option.style.color = "#ef4444";
+      } else {
+        option.textContent = timeString;
+        hasAvailableSlots = true;
+      }
+      
       timeSelect.appendChild(option);
-      hasAvailableSlots = true;
     }
   }
 
   if (!hasAvailableSlots) {
-    timeSelect.innerHTML = '<option value="" disabled selected>Indisponível hoje (Min. 2h antecedência)</option>';
+    timeSelect.innerHTML = '<option value="" disabled selected>Horários encerrados para hoje</option>';
   }
-}
-
-if (dateInput) {
-  dateInput.addEventListener("change", generateTimeSlots);
 }
 
 // --- 4. MÁSCARA DE TELEFONE ---
@@ -154,28 +193,28 @@ function renderCart() {
     const formattedUnitPrice = item.unitPriceNumeric.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 
     const itemDiv = document.createElement("div");
-    itemDiv.style.cssText = "display: flex; flex-direction: column; gap: 8px; background: rgba(255, 255, 255, 0.05); padding: 12px; border-radius: 8px; font-size: 0.9rem; border: 1px solid rgba(255, 255, 255, 0.1);";
+    itemDiv.style.cssText = "display: flex; flex-direction: column; gap: 8px; background: var(--input-bg, #f1f5f9); padding: 12px; border-radius: 8px; font-size: 0.9rem; border: 1px solid var(--c-700, #e2e8f0);";
     
     itemDiv.innerHTML = `
       <div style="display: flex; justify-content: space-between; align-items: flex-start;">
         <div>
-          <span style="font-weight: 700; color: #fff; display: block;">Barca ${item.type} - ${item.sizeText}</span>
-          <span style="font-size: 0.75rem; color: #aaa; display: block; margin-top: 2px;">Camarão: ${item.shrimp}</span>
-          <span style="font-size: 0.75rem; color: #888;">Unitário: ${formattedUnitPrice}</span>
+          <span style="font-weight: 800; color: #0f172a; display: block; font-size: 0.95rem;">Barca ${item.type} - ${item.sizeText}</span>
+          <span style="font-size: 0.8rem; color: #64748b; display: block; margin-top: 2px;">Camarão: <strong>${item.shrimp}</strong></span>
+          <span style="font-size: 0.8rem; color: #64748b;">Unitário: ${formattedUnitPrice}</span>
         </div>
         <button type="button" class="btn-remove-item" data-index="${index}" style="background: transparent; border: none; color: #ef4444; cursor: pointer; padding: 4px;" title="Remover item">
-          <i data-lucide="trash-2" style="width: 16px; height: 16px;"></i>
+          <i data-lucide="trash-2" style="width: 18px; height: 18px;"></i>
         </button>
       </div>
 
-      <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255, 255, 255, 0.08); padding-top: 8px; margin-top: 4px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--c-700, #e2e8f0); padding-top: 8px; margin-top: 4px;">
         <div style="display: flex; align-items: center; gap: 8px;">
-          <span style="font-size: 0.8rem; color: #aaa;">Qtd:</span>
-          <button type="button" class="btn-qty-minus" data-index="${index}" style="background: rgba(255,255,255,0.1); border: none; color: #fff; width: 26px; height: 26px; border-radius: 4px; cursor: pointer; font-weight: bold;">-</button>
-          <span style="font-weight: bold; color: #fff; min-width: 20px; text-align: center;">${item.quantity}</span>
-          <button type="button" class="btn-qty-plus" data-index="${index}" style="background: rgba(255,255,255,0.1); border: none; color: #fff; width: 26px; height: 26px; border-radius: 4px; cursor: pointer; font-weight: bold;">+</button>
+          <span style="font-size: 0.8rem; color: #64748b; font-weight: 600;">Qtd:</span>
+          <button type="button" class="btn-qty-minus" data-index="${index}" style="background: #ffffff; border: 1px solid var(--c-700, #e2e8f0); color: #0f172a; width: 28px; height: 28px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 1rem;">-</button>
+          <span style="font-weight: 800; color: #0f172a; min-width: 22px; text-align: center;">${item.quantity}</span>
+          <button type="button" class="btn-qty-plus" data-index="${index}" style="background: #ffffff; border: 1px solid var(--c-700, #e2e8f0); color: #0f172a; width: 28px; height: 28px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 1rem;">+</button>
         </div>
-        <span style="font-size: 0.95rem; font-weight: 700; color: #22c55e;">${formattedItemTotal}</span>
+        <span style="font-size: 1rem; font-weight: 800; color: #16a34a;">${formattedItemTotal}</span>
       </div>
     `;
     cartList.appendChild(itemDiv);
@@ -183,8 +222,21 @@ function renderCart() {
 
   const subtotalFormatted = totalSubtotal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
   const subtotalEl = document.getElementById("cartSubtotalValue");
+  
   if (subtotalEl) {
     subtotalEl.textContent = subtotalFormatted;
+    subtotalEl.style.color = "#16a34a"; // Verde sólido do valor
+    
+    // Força os estilos do container do Total caso o HTML esteja antigo
+    const cartTotalBox = document.getElementById("cartTotalBox");
+    if (cartTotalBox) {
+      cartTotalBox.style.cssText = "display: flex; align-items: center; justify-content: space-between; background: var(--input-bg, #f1f5f9); padding: 12px 14px; border-radius: 8px; margin-top: 6px; border: 1px solid var(--c-700, #e2e8f0);";
+      
+      const labelSpan = cartTotalBox.querySelector("span");
+      if (labelSpan) {
+        labelSpan.style.cssText = "font-size: 0.95rem; font-weight: 800; color: var(--text-main, #0f172a);";
+      }
+    }
   }
 
   if (window.lucide) lucide.createIcons();
@@ -287,13 +339,18 @@ if (form) {
     const primaryType = cartItems[0].type;
     const primarySize = cartItems[0].rawSize;
 
+    // Lógica da Retirada x Entrega
+    const deliveryType = deliveryTypeSelect ? deliveryTypeSelect.value : "Entrega";
+    const addressVal = deliveryType === "Retirada" ? "Retirada no Balcão" : document.getElementById("clientAddress").value;
+    const complementVal = deliveryType === "Retirada" ? "N/A" : (document.getElementById("clientComplement").value || "Nenhum");
+
     const newOrder = {
       id: newId,
       customerName: document.getElementById("clientName").value,
       phone: clientPhoneInput.value,
       time: timeValue,
       date: dateInput.value,
-      createdAt: `Hoje, ${new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}`,
+      createdAt: new Date().toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }),
       rawType: primaryType,
       rawSize: primarySize,
       size: combinedSizes,
@@ -301,11 +358,14 @@ if (form) {
       allowShrimp: cartItems.map(i => `${i.quantity}x ${i.shrimp}`).join(" | "),
       paymentMethod: document.getElementById("orderPayment").value,
       obs: document.getElementById("orderObs").value || "Nenhuma observação informada.",
-      address: document.getElementById("clientAddress").value,
-      complement: document.getElementById("clientComplement").value || "Nenhum",
-      status: "Aguardando Frete", 
-      isManual: false,
-      freight: "" 
+      
+      deliveryType: deliveryType,
+      address: addressVal,
+      complement: complementVal,
+      freight: deliveryType === "Retirada" ? "0,00" : "", 
+      
+      status: deliveryType === "Retirada" ? "Pendente" : "Aguardando Frete", 
+      isManual: false
     };
 
     const existingOrders = JSON.parse(localStorage.getItem("sushiOrdersDatabase")) || [];
@@ -326,13 +386,20 @@ if (form) {
 
     const totalFormatado = totalAcumulado.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 
+    const deliverySectionText = deliveryType === "Retirada"
+      ? `*📍 RETIRADA*\nAgendado para retirada no balcão.`
+      : `*📍 ENTREGA*\nEndereço: ${newOrder.address}\nComplemento: ${newOrder.complement}`;
+
+    const confirmationQuestion = deliveryType === "Retirada"
+      ? "o agendamento"
+      : "o valor do frete";
+
     const message = `
 🍣 *NOVO PEDIDO: ${newOrder.id}* 🍣
-Olá! Acabei de gerar meu pedido. Poderiam me confirmar o valor do frete?
+Olá! Acabei de gerar meu pedido. Poderiam me confirmar ${confirmationQuestion}?
 
-*📍 ENTREGA*
-Endereço: ${newOrder.address}
-Complemento: ${newOrder.complement}
+*Tipo de Recebimento:* ${deliveryType}
+${deliverySectionText}
 
 *🍱 ITENS DO PEDIDO:*
 ${barcasMessageList}
@@ -348,7 +415,12 @@ ${barcasMessageList}
     updateSizeOptions(); 
     generateTimeSlots(); 
     
-    alert("Pedido gerado! Vamos te redirecionar para o WhatsApp para confirmar o frete.");
+    // Mostra se o endereço de novo ou o de retirada conforme reseta o select
+    if (addressFieldsContainer) addressFieldsContainer.style.display = "block";
+    if (pickupNotice) pickupNotice.style.display = "none";
+    if (clientAddressInput) clientAddressInput.setAttribute("required", "required");
+    
+    alert("Pedido gerado! Vamos te redirecionar para o WhatsApp.");
     window.open(`https://wa.me/${WHATSAPP_RESTAURANTE}?text=${encodedMessage}`, "_blank");
   });
 }

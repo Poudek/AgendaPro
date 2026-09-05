@@ -1,5 +1,6 @@
 const defaultFakeData = [
-  { id: "BC-1041", customerName: "Rodrigo Alencar", phone: "(85) 99123-4567", time: "18:30", date: "2026-08-28", createdAt: "Hoje, 10:15", rawType: "Especial", rawSize: "G - 150 Peças", size: "Barca Especial - G - 150 Peças", allowShrimp: "Sim, liberado", paymentMethod: "Pix", obs: "Caprichar no salmão", address: "Rua Barbosa, 1420", complement: "Apto 802", status: "Pronto", isManual: true }
+  { id: "BC-1041", customerName: "Rodrigo Alencar", phone: "(85) 99123-4567", time: "18:30", date: "2026-08-28", createdAt: "Hoje, 10:15", rawType: "Especial", rawSize: "G - 150 Peças", size: "Barca Especial - G - 150 Peças", allowShrimp: "Sim, liberado", paymentMethod: "Pix", obs: "Caprichar no salmão", address: "Rua Barbosa, 1420", complement: "Apto 802", status: "Pronto", isManual: true, deliveryType: "Entrega" },
+  { id: "BC-1042", customerName: "Jefferson Feitosa", phone: "(85) 99197-9773", time: "20:30", date: "2026-09-03", createdAt: "Hoje, 10:15", rawType: "Especial", rawSize: "G - 150 Peças", size: "Barca Especial - G - 150 Peças", allowShrimp: "Sim, liberado", paymentMethod: "Pix", obs: "Caprichar no salmão", address: "Rua Barbosa, 1420", complement: "Apto 802", status: "Pronto", isManual: true, deliveryType: "Entrega" }
 ];
 
 let ordersDatabase = JSON.parse(localStorage.getItem("sushiOrdersDatabase"));
@@ -85,11 +86,19 @@ function renderTimeline() {
       ? `<span class="manual-badge" title="Adicionado Manualmente pelo Painel"><i data-lucide="edit-3" class="icon-xs"></i> Manual</span>` 
       : "";
 
+    // Adiciona a TAG de Retirada
+    const pickupBadge = order.deliveryType === "Retirada"
+      ? `<span style="font-size: 0.65rem; background: #e0f2fe; color: #0369a1; padding: 2px 6px; border-radius: 4px; font-weight: 700; text-transform: uppercase;">Retirada</span>`
+      : "";
+
     const dateSplit = order.date.split("-");
     const formattedDate = `${dateSplit[2]}/${dateSplit[1]}`;
     const isToday = order.date === todayISO;
-    const dateColor = isToday ? "var(--text-muted)" : "var(--warning)";
-    const dateWeight = isToday ? "500" : "800";
+    
+    // Cria um visual de "etiqueta" (badge) para datas que não são hoje
+    const dateStyles = isToday 
+      ? `color: var(--text-muted); font-weight: 500;` 
+      : `color: #854d0e; background: #fef08a; font-weight: 700; padding: 2px 6px; border-radius: 4px;`;
 
     let cardSizePreview = order.size;
     if (order.items && order.items.length > 1) {
@@ -100,7 +109,7 @@ function renderTimeline() {
     card.innerHTML = `
       <div style="display: flex; flex-direction: column; align-items: center; line-height: 1.1;">
         <span class="card-time">${order.time}</span>
-        <span style="font-size: 0.75rem; color: ${dateColor}; font-weight: ${dateWeight}; margin-top: 4px;">${formattedDate}</span>
+        <span style="font-size: 0.75rem; margin-top: 6px; ${dateStyles}">${formattedDate}</span>
       </div>
       <div class="card-meta">
         <div class="card-client">${order.customerName}</div>
@@ -108,6 +117,7 @@ function renderTimeline() {
       </div>
       <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 6px;">
         ${manualTag}
+        ${pickupBadge}
         <span class="status-tag ${statusClass}">${order.status}</span>
       </div>
     `;
@@ -128,7 +138,7 @@ function selectOrder(orderId) {
   activeDetails.classList.remove("hidden");
 
   document.getElementById("detId").textContent = `#${order.id}`;
-  document.getElementById("detCreatedAt").innerHTML = `<i data-lucide="clock-3" style="width: 14px; height: 14px; display: inline-block; vertical-align: middle; margin-right: 4px;"></i> Agendado em: ${order.createdAt}`;
+  document.getElementById("detCreatedAt").innerHTML = `<i data-lucide="clock-3" style="width: 14px; height: 14px; display: inline-block; vertical-align: middle; margin-right: 4px;"></i> Criado em: ${order.createdAt}`;
   document.getElementById("detCustomerName").textContent = order.customerName;
   document.getElementById("detTime").textContent = order.time;
   document.getElementById("detPaymentMethod").textContent = order.paymentMethod || "--";
@@ -144,12 +154,12 @@ function selectOrder(orderId) {
       const itemTotalFormatted = itemTotal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 
       detItemsList.innerHTML += `
-        <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.03); padding: 8px 10px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.05);">
-          <span style="font-size: 0.9rem; color: #fff; line-height: 1.3;">
+        <div style="display: flex; justify-content: space-between; align-items: center; background: var(--c-900); padding: 8px 10px; border-radius: 6px; border: 1px solid var(--c-700);">
+          <span style="font-size: 0.9rem; color: var(--text-main); line-height: 1.3;">
             <strong>${item.quantity}x</strong> Barca ${item.type} - ${item.sizeText} 
-            <span style="color: #aaa; margin-left: 4px;">(Camarão: ${item.shrimp})</span>
+            <span style="color: var(--text-muted); margin-left: 4px;">(Camarão: ${item.shrimp})</span>
           </span>
-          <strong style="font-size: 0.95rem; color: #22c55e; white-space: nowrap; margin-left: 10px;">${itemTotalFormatted}</strong>
+          <strong style="font-size: 0.95rem; color: var(--success); white-space: nowrap; margin-left: 10px;">${itemTotalFormatted}</strong>
         </div>
       `;
     });
@@ -158,28 +168,35 @@ function selectOrder(orderId) {
     totalItemsValue = parseFloat(barcaPriceRaw.replace("R$ ", "").replace(",", ".")) || 0;
 
     detItemsList.innerHTML = `
-      <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.03); padding: 8px 10px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.05);">
-        <span style="font-size: 0.9rem; color: #fff; line-height: 1.3;">
+      <div style="display: flex; justify-content: space-between; align-items: center; background: var(--c-900); padding: 8px 10px; border-radius: 6px; border: 1px solid var(--c-700);">
+        <span style="font-size: 0.9rem; color: var(--text-main); line-height: 1.3;">
           <strong>1x</strong> ${order.size} 
-          <span style="color: #aaa; margin-left: 4px;">(Camarão: ${order.allowShrimp || "Sim"})</span>
+          <span style="color: var(--text-muted); margin-left: 4px;">(Camarão: ${order.allowShrimp || "Sim"})</span>
         </span>
-        <strong style="font-size: 0.95rem; color: #22c55e; white-space: nowrap; margin-left: 10px;">${barcaPriceRaw}</strong>
+        <strong style="font-size: 0.95rem; color: var(--success); white-space: nowrap; margin-left: 10px;">${barcaPriceRaw}</strong>
       </div>
     `;
   }
 
   document.getElementById("detPrice").textContent = totalItemsValue.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
   
-  const freightValue = parseFloat(String(order.freight).replace(',', '.')) || 0;
-  document.getElementById("detFreight").textContent = freightValue > 0 ? `R$ ${freightValue.toFixed(2).replace('.', ',')}` : "Aguardando cálculo";
-
-  if (freightValue > 0 && totalItemsValue > 0) {
-    const total = totalItemsValue + freightValue;
-    document.getElementById("detTotal").textContent = total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-    document.getElementById("btnSendFreight").style.display = "flex";
-  } else {
-    document.getElementById("detTotal").textContent = "--";
+  // LOGICA PARA ZERAR FRETE SE FOR RETIRADA
+  if (order.deliveryType === "Retirada") {
+    document.getElementById("detFreight").textContent = "Grátis (Retirada)";
+    document.getElementById("detTotal").textContent = totalItemsValue.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
     document.getElementById("btnSendFreight").style.display = "none";
+  } else {
+    const freightValue = parseFloat(String(order.freight).replace(',', '.')) || 0;
+    document.getElementById("detFreight").textContent = freightValue > 0 ? `R$ ${freightValue.toFixed(2).replace('.', ',')}` : "Aguardando cálculo";
+
+    if (freightValue > 0 && totalItemsValue > 0) {
+      const total = totalItemsValue + freightValue;
+      document.getElementById("detTotal").textContent = total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+      document.getElementById("btnSendFreight").style.display = "flex";
+    } else {
+      document.getElementById("detTotal").textContent = "--";
+      document.getElementById("btnSendFreight").style.display = "none";
+    }
   }
   
   document.getElementById("detObs").textContent = order.obs;
@@ -310,7 +327,6 @@ document.addEventListener("DOMContentLoaded", () => {
   activeDetails.classList.add("hidden");
   emptyDetails.style.display = "flex";
   
-  // Destrava áudio de forma mais agressiva (Click, Toque ou Teclado)
   const unlockAudio = () => {
     const audio = document.getElementById("notificationSound");
     if (audio) {
@@ -321,7 +337,6 @@ document.addEventListener("DOMContentLoaded", () => {
         audio.currentTime = 0;
       }).catch(() => {});
     }
-    // Remove os eventos após destravar na primeira vez
     ['click', 'touchstart', 'keydown'].forEach(evt => {
       document.removeEventListener(evt, unlockAudio);
     });
@@ -344,6 +359,23 @@ const btnEditOrder = document.getElementById("btnEditOrder");
 const modalTitle = document.querySelector("#newOrderModal .modal-header h2");
 const modalSubmitBtn = document.querySelector("#newOrderForm button[type='submit']");
 let isEditing = false;
+
+// Lógica de exibição condicional (Retirada vs Entrega) no modal
+const addDeliveryType = document.getElementById("addDeliveryType");
+if (addDeliveryType) {
+  addDeliveryType.addEventListener("change", (e) => {
+    const isPickup = e.target.value === "Retirada";
+    
+    const addAddress = document.getElementById("addAddress");
+    const addComplement = document.getElementById("addComplement");
+    const addFreight = document.getElementById("addFreight");
+
+    // Localiza os contêineres e oculta/mostra conforme a modalidade
+    if (addAddress) addAddress.parentElement.style.display = isPickup ? "none" : "block";
+    if (addComplement) addComplement.parentElement.style.display = isPickup ? "none" : "block";
+    if (addFreight) addFreight.parentElement.style.display = isPickup ? "none" : "block";
+  });
+}
 
 function renderAdminCart() {
   const cartContainer = document.getElementById("adminCartContainer");
@@ -370,28 +402,28 @@ function renderAdminCart() {
     const formattedUnitPrice = item.unitPriceNumeric.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 
     const itemDiv = document.createElement("div");
-    itemDiv.style.cssText = "display: flex; flex-direction: column; gap: 8px; background: rgba(255, 255, 255, 0.05); padding: 12px; border-radius: 8px; font-size: 0.9rem; border: 1px solid rgba(255, 255, 255, 0.1);";
+    itemDiv.style.cssText = "display: flex; flex-direction: column; gap: 8px; background: var(--c-900); padding: 12px; border-radius: 8px; font-size: 0.9rem; border: 1px solid var(--c-700);";
     
     itemDiv.innerHTML = `
       <div style="display: flex; justify-content: space-between; align-items: flex-start;">
         <div>
-          <span style="font-weight: 700; color: #fff; display: block;">Barca ${item.type} - ${item.sizeText}</span>
-          <span style="font-size: 0.75rem; color: #aaa; display: block; margin-top: 2px;">Camarão: ${item.shrimp}</span>
-          <span style="font-size: 0.75rem; color: #888;">Unitário: ${formattedUnitPrice}</span>
+          <span style="font-weight: 700; color: var(--text-main); display: block;">Barca ${item.type} - ${item.sizeText}</span>
+          <span style="font-size: 0.75rem; color: var(--text-muted); display: block; margin-top: 2px;">Camarão: ${item.shrimp}</span>
+          <span style="font-size: 0.75rem; color: var(--text-muted);">Unitário: ${formattedUnitPrice}</span>
         </div>
         <button type="button" class="btn-remove-admin-item" data-index="${index}" style="background: transparent; border: none; color: #ef4444; cursor: pointer; padding: 4px;" title="Remover item">
           <i data-lucide="trash-2" style="width: 16px; height: 16px;"></i>
         </button>
       </div>
 
-      <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255, 255, 255, 0.08); padding-top: 8px; margin-top: 4px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--c-700); padding-top: 8px; margin-top: 4px;">
         <div style="display: flex; align-items: center; gap: 8px;">
-          <span style="font-size: 0.8rem; color: #aaa;">Qtd:</span>
-          <button type="button" class="btn-qty-minus-admin" data-index="${index}" style="background: rgba(255,255,255,0.1); border: none; color: #fff; width: 26px; height: 26px; border-radius: 4px; cursor: pointer; font-weight: bold;">-</button>
-          <span style="font-weight: bold; color: #fff; min-width: 20px; text-align: center;">${item.quantity}</span>
-          <button type="button" class="btn-qty-plus-admin" data-index="${index}" style="background: rgba(255,255,255,0.1); border: none; color: #fff; width: 26px; height: 26px; border-radius: 4px; cursor: pointer; font-weight: bold;">+</button>
+          <span style="font-size: 0.8rem; color: var(--text-muted);">Qtd:</span>
+          <button type="button" class="btn-qty-minus-admin" data-index="${index}" style="background: var(--c-800); border: 1px solid var(--c-700); color: var(--text-main); width: 26px; height: 26px; border-radius: 4px; cursor: pointer; font-weight: bold;">-</button>
+          <span style="font-weight: bold; color: var(--text-main); min-width: 20px; text-align: center;">${item.quantity}</span>
+          <button type="button" class="btn-qty-plus-admin" data-index="${index}" style="background: var(--c-800); border: 1px solid var(--c-700); color: var(--text-main); width: 26px; height: 26px; border-radius: 4px; cursor: pointer; font-weight: bold;">+</button>
         </div>
-        <span style="font-size: 0.95rem; font-weight: 700; color: #22c55e;">${formattedTotal}</span>
+        <span style="font-size: 0.95rem; font-weight: 700; color: var(--success);">${formattedTotal}</span>
       </div>
     `;
     cartList.appendChild(itemDiv);
@@ -470,6 +502,12 @@ if (btnNewOrder) {
     modalTitle.innerHTML = `<i data-lucide="plus-circle" class="icon-sm text-primary"></i> Adicionar Pedido Manual`;
     modalSubmitBtn.textContent = "Salvar Pedido";
     document.getElementById("addDate").value = document.getElementById("dateFilter").value;
+    
+    if (addDeliveryType) {
+      addDeliveryType.value = "Entrega";
+      addDeliveryType.dispatchEvent(new Event("change"));
+    }
+
     openModal();
     if (window.lucide) lucide.createIcons();
   });
@@ -485,8 +523,8 @@ if (btnEditOrder) {
     
     document.getElementById("addName").value = order.customerName;
     document.getElementById("addPhone").value = order.phone;
-    document.getElementById("addAddress").value = order.address;
-    document.getElementById("addComplement").value = order.complement !== "Nenhum" ? order.complement : "";
+    document.getElementById("addAddress").value = order.address === "Retirada no Balcão" ? "" : order.address;
+    document.getElementById("addComplement").value = order.complement === "N/A" || order.complement === "Nenhum" ? "" : order.complement;
     document.getElementById("addDate").value = order.date; 
     document.getElementById("addTime").value = order.time;
     document.getElementById("addObs").value = order.obs !== "Nenhuma observação informada." ? order.obs : "";
@@ -497,6 +535,11 @@ if (btnEditOrder) {
       const paymentSelect = document.getElementById("addPayment");
       if (!Array.from(paymentSelect.options).some(opt => opt.value === pm)) paymentSelect.add(new Option(pm, pm));
       paymentSelect.value = pm;
+    }
+
+    if (addDeliveryType) {
+      addDeliveryType.value = order.deliveryType || "Entrega";
+      addDeliveryType.dispatchEvent(new Event("change"));
     }
 
     if (order.items && order.items.length > 0) {
@@ -538,6 +581,12 @@ newOrderForm.addEventListener("submit", (e) => {
   const primarySize = adminCartItems[0].rawSize;
   const allowShrimpStr = adminCartItems.map(i => `${i.quantity}x ${i.shrimp}`).join(" | ");
 
+  const dtEl = document.getElementById("addDeliveryType");
+  const deliveryTypeVal = dtEl ? dtEl.value : "Entrega";
+  const addressVal = deliveryTypeVal === "Retirada" ? "Retirada no Balcão" : document.getElementById("addAddress").value;
+  const complementVal = deliveryTypeVal === "Retirada" ? "N/A" : (document.getElementById("addComplement").value || "Nenhum");
+  const freightVal = deliveryTypeVal === "Retirada" ? "0,00" : document.getElementById("addFreight").value;
+
   if (isEditing) {
     const orderIndex = ordersDatabase.findIndex(o => o.id === activeOrderId);
     if (orderIndex > -1) {
@@ -547,9 +596,10 @@ newOrderForm.addEventListener("submit", (e) => {
       ordersDatabase[orderIndex].time = document.getElementById("addTime").value;
       ordersDatabase[orderIndex].paymentMethod = document.getElementById("addPayment").value;
       ordersDatabase[orderIndex].obs = document.getElementById("addObs").value || "Nenhuma observação informada.";
-      ordersDatabase[orderIndex].address = document.getElementById("addAddress").value;
-      ordersDatabase[orderIndex].complement = document.getElementById("addComplement").value || "Nenhum";
-      ordersDatabase[orderIndex].freight = document.getElementById("addFreight").value;
+      ordersDatabase[orderIndex].address = addressVal;
+      ordersDatabase[orderIndex].complement = complementVal;
+      ordersDatabase[orderIndex].freight = freightVal;
+      ordersDatabase[orderIndex].deliveryType = deliveryTypeVal;
       
       ordersDatabase[orderIndex].items = adminCartItems;
       ordersDatabase[orderIndex].rawType = primaryType; 
@@ -572,7 +622,7 @@ newOrderForm.addEventListener("submit", (e) => {
       phone: document.getElementById("addPhone").value,
       time: document.getElementById("addTime").value,
       date: dateValue, 
-      createdAt: `Hoje, ${now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}`,
+      createdAt: new Date().toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }),
       rawType: primaryType,     
       rawSize: primarySize,     
       size: combinedSizes,
@@ -580,11 +630,12 @@ newOrderForm.addEventListener("submit", (e) => {
       allowShrimp: allowShrimpStr,
       paymentMethod: document.getElementById("addPayment").value,
       obs: document.getElementById("addObs").value || "Nenhuma observação informada.",
-      address: document.getElementById("addAddress").value,
-      complement: document.getElementById("addComplement").value || "Nenhum",
-      status: "Pendente",
+      address: addressVal,
+      complement: complementVal,
+      status: deliveryTypeVal === "Retirada" ? "Pendente" : "Aguardando Frete",
       isManual: true,
-      freight: document.getElementById("addFreight").value 
+      deliveryType: deliveryTypeVal,
+      freight: freightVal 
     };
     ordersDatabase.push(newOrder);
     saveDatabase(); 
@@ -629,6 +680,26 @@ function showNotification(order) {
   const toastContainer = document.getElementById("toastContainer");
   if (!toastContainer) return;
 
+  // Lógica para descobrir se o pedido é para hoje ou outro dia
+  const today = new Date();
+  const todayISO = new Date(today.getTime() - (today.getTimezoneOffset() * 60000)).toISOString().split("T")[0];
+  
+  let scheduleText = "";
+  if (order.date === todayISO) {
+    scheduleText = `Hoje às ${order.time}`;
+  } else {
+    // Quebra a data "YYYY-MM-DD" para formatar
+    const [year, month, day] = order.date.split("-");
+    const orderDateObj = new Date(year, month - 1, day);
+    
+    // Pega o nome do dia da semana (segunda-feira, terça-feira...)
+    let weekDay = orderDateObj.toLocaleDateString('pt-BR', { weekday: 'long' });
+    // Deixa a primeira letra maiúscula (ex: "Quinta-feira")
+    weekDay = weekDay.charAt(0).toUpperCase() + weekDay.slice(1);
+    
+    scheduleText = `${weekDay} (${day}/${month}) às ${order.time}`;
+  }
+
   const toast = document.createElement("div");
   toast.className = "toast-notification";
   toast.innerHTML = `
@@ -637,7 +708,8 @@ function showNotification(order) {
     </div>
     <div class="toast-content">
       <h4>Novo Pedido Recebido!</h4>
-      <p>${order.customerName} • ${order.time}</p>
+      <p style="margin: 0;"><strong>${order.customerName}</strong></p>
+      <p style="margin: 2px 0 0 0; font-size: 0.85rem; opacity: 0.85;">Para: ${scheduleText}</p>
     </div>
   `;
   toastContainer.appendChild(toast);
@@ -654,22 +726,15 @@ window.addEventListener('storage', (e) => {
   if (e.key === 'sushiOrdersDatabase') {
     const newData = JSON.parse(e.newValue) || [];
     
-    // Se o array novo for maior que o atual, significa que chegou pedido novo!
     if (newData.length > ordersDatabase.length) {
       const newOrder = newData[newData.length - 1]; 
       ordersDatabase = newData; 
-      
       const currentFilter = document.getElementById("dateFilter").value;
-      
-      // Se o pedido novo for para a mesma data que o admin está visualizando, atualiza a lista
       if (newOrder.date === currentFilter) {
         renderTimeline();         
       }
-      
-      // Dispara o alerta sonoro e visual
       showNotification(newOrder); 
     } else {
-      // Se não for maior, foi apenas uma edição ou exclusão
       ordersDatabase = newData;
       renderTimeline();
     }
@@ -800,7 +865,6 @@ function generateReportHTML(period) {
     startDate = new Date(startOfWeek.getTime() - (startOfWeek.getTimezoneOffset() * 60000)).toISOString().split("T")[0];
     endDate = new Date(endOfWeek.getTime() - (endOfWeek.getTimezoneOffset() * 60000)).toISOString().split("T")[0];
     periodLabel = `Fechamento Semanal (${startDate.split('-').reverse().join('/')} a ${endDate.split('-').reverse().join('/')})`;
-    
   } else if (period === 'mes') {
     const year = now.getFullYear();
     const month = (now.getMonth() + 1).toString().padStart(2, '0');
@@ -814,12 +878,30 @@ function generateReportHTML(period) {
   const filtered = ordersDatabase.filter(o => o.date >= startDate && o.date <= endDate && o.status !== "Cancelado");
 
   const prepList = {};
+  const paymentStats = {};
   let totalRevenue = 0;
+  let totalBarcasAll = 0;
+  let totalBarcasDelivery = 0; // Novo contador para Delivery
+  let totalBarcasRetirada = 0; // Novo contador para Retirada
   let totalOrders = filtered.length;
 
   filtered.forEach(order => {
     const freightValue = parseFloat(String(order.freight).replace(',', '.')) || 0;
     totalRevenue += freightValue;
+
+    const isPickup = order.deliveryType === "Retirada";
+
+    // Normaliza método de pagamento
+    let pm = order.paymentMethod || "Não Informado";
+    if (pm.includes("Pix")) pm = "Pix";
+    
+    if (!paymentStats[pm]) {
+      paymentStats[pm] = { orders: 0, barcas: 0, total: 0 };
+    }
+    paymentStats[pm].orders += 1;
+    paymentStats[pm].total += freightValue;
+
+    let orderItemsTotal = 0;
 
     if (order.items && order.items.length > 0) {
       order.items.forEach(item => {
@@ -828,7 +910,16 @@ function generateReportHTML(period) {
         prepList[itemKey].qtd += item.quantity;
         const itemTotal = item.unitPriceNumeric * item.quantity;
         prepList[itemKey].subtotal += itemTotal;
+        
+        orderItemsTotal += itemTotal;
         totalRevenue += itemTotal;
+        
+        totalBarcasAll += item.quantity;
+        paymentStats[pm].barcas += item.quantity;
+        
+        // Separa contagem de modalidade
+        if (isPickup) totalBarcasRetirada += item.quantity;
+        else totalBarcasDelivery += item.quantity;
       });
     } else {
       const barcaPriceRaw = getOrderPrice(order.rawType, order.rawSize);
@@ -837,15 +928,23 @@ function generateReportHTML(period) {
       if (!prepList[itemKey]) prepList[itemKey] = { qtd: 0, subtotal: 0 };
       prepList[itemKey].qtd += 1;
       prepList[itemKey].subtotal += unitPriceNumeric;
+      
+      orderItemsTotal += unitPriceNumeric;
       totalRevenue += unitPriceNumeric;
+      
+      totalBarcasAll += 1;
+      paymentStats[pm].barcas += 1;
+      
+      // Separa contagem de modalidade
+      if (isPickup) totalBarcasRetirada += 1;
+      else totalBarcasDelivery += 1;
     }
+
+    paymentStats[pm].total += orderItemsTotal;
   });
 
-  const printWindow = window.open('', '_blank');
-  let itemsHtml = '';
-
   const sortedItems = Object.entries(prepList).sort((a, b) => b[1].qtd - a[1].qtd);
-
+  let itemsHtml = '';
   sortedItems.forEach(([name, data]) => {
     itemsHtml += `
       <tr style="border-bottom: 1px solid #ddd;">
@@ -860,6 +959,25 @@ function generateReportHTML(period) {
     itemsHtml = `<tr><td colspan="3" style="padding: 20px; text-align: center; color: #666;">Nenhum pedido agendado para este período.</td></tr>`;
   }
 
+  // Tabela de Métodos de Pagamento
+  let paymentHtml = '';
+  const sortedPayments = Object.entries(paymentStats).sort((a, b) => b[1].total - a[1].total);
+  sortedPayments.forEach(([method, data]) => {
+    paymentHtml += `
+      <tr style="border-bottom: 1px solid #ddd;">
+        <td style="padding: 10px 12px; font-weight: 600; font-size: 14px;">${method}</td>
+        <td style="padding: 10px 12px; text-align: center; font-size: 14px;">${data.orders} pedido(s)</td>
+        <td style="padding: 10px 12px; text-align: center; font-weight: bold; font-size: 14px;">${data.barcas} barca(s)</td>
+        <td style="padding: 10px 12px; text-align: right; font-weight: bold; font-size: 14px;">${data.total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</td>
+      </tr>
+    `;
+  });
+
+  if (sortedPayments.length === 0) {
+    paymentHtml = `<tr><td colspan="4" style="padding: 15px; text-align: center; color: #666;">Sem dados de pagamento.</td></tr>`;
+  }
+
+  const printWindow = window.open('', '_blank');
   const html = `
     <!DOCTYPE html>
     <html lang="pt-BR">
@@ -871,13 +989,18 @@ function generateReportHTML(period) {
         .header { text-align: center; border-bottom: 2px solid #000; padding-bottom: 15px; margin-bottom: 20px; }
         h1 { margin: 0 0 5px 0; font-size: 26px; text-transform: uppercase; letter-spacing: 1px; }
         h2 { margin: 0; font-size: 16px; color: #444; font-weight: normal; }
-        table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
-        th { background: #f0f0f0; border-bottom: 2px solid #000; padding: 12px; text-align: left; font-size: 13px; text-transform: uppercase; }
-        th:first-child { text-align: center; width: 60px; }
-        th:last-child { text-align: right; width: 120px; }
-        .summary { background: #fafafa; border: 2px dashed #ccc; padding: 15px; border-radius: 8px; page-break-inside: avoid; }
-        .summary-row { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 16px; color: #333; }
-        .summary-row.total { font-weight: 900; font-size: 20px; border-top: 1px solid #ccc; padding-top: 10px; margin-top: 5px; color: #000; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 25px; }
+        th { background: #f0f0f0; border-bottom: 2px solid #000; padding: 10px 12px; text-align: left; font-size: 13px; text-transform: uppercase; }
+        th.center { text-align: center; }
+        th.right { text-align: right; }
+        .section-title { font-size: 16px; margin: 20px 0 10px 0; border-bottom: 1px solid #eee; padding-bottom: 5px; }
+        .summary { background: #fafafa; border: 2px dashed #ccc; padding: 15px; border-radius: 8px; page-break-inside: avoid; margin-top: 15px; }
+        .summary-row { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 15px; color: #333; }
+        .summary-row.total { font-weight: 900; font-size: 19px; border-top: 1px solid #ccc; padding-top: 10px; margin-top: 5px; color: #000; }
+        
+        /* Estilo da divisão de Delivery vs Retirada */
+        .delivery-split { display: flex; font-size: 13px; color: #555; margin-top: -5px; margin-bottom: 15px; gap: 20px; }
+        
         @media print {
           body { padding: 0; margin: 0; }
           .print-btn { display: none !important; }
@@ -890,23 +1013,38 @@ function generateReportHTML(period) {
       <button class="print-btn" onclick="window.print()">🖨️ Imprimir / Salvar como PDF</button>
       
       <div class="header">
-        <h1>Dedé Sushi</h1>
-        <h2>Relatório de Produção e Fechamento</h2>
-        <p style="margin: 8px 0 0 0; font-size: 14px; font-weight: bold;">Período: ${periodLabel}</p>
+        <img src="./assets/logo.png" alt="Dedé Sushi" style="width: 200px; height: auto; object-fit: contain; margin-bottom: 15px; display: inline-block;">
+        <h2 style="margin: -6px 0 4px 0; font-size: 16px; color: #444; font-weight: normal;">Relatório de Produção e Fechamento</h2>
+        <p style="margin: 4px 0 0 0; font-size: 14px; font-weight: bold;">Período: ${periodLabel}</p>
         <p style="margin: 4px 0 0 0; font-size: 12px; color: #888;">Gerado em: ${new Date().toLocaleString('pt-BR')}</p>
       </div>
       
-      <h3 style="margin-bottom: 10px; border-bottom: 1px solid #eee; padding-bottom: 5px;">Consolidado para a Cozinha (Itens a Produzir)</h3>
+      <h3 class="section-title">Consolidado para a Cozinha (Itens a Produzir)</h3>
       <table>
         <thead>
           <tr>
-            <th>Qtd</th>
+            <th style="width: 60px; text-align: center;">Qtd</th>
             <th>Descrição do Item</th>
-            <th>Subtotal</th>
+            <th class="right" style="width: 120px;">Subtotal</th>
           </tr>
         </thead>
         <tbody>
           ${itemsHtml}
+        </tbody>
+      </table>
+
+      <h3 class="section-title">Distribuição por Forma de Pagamento</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Método</th>
+            <th class="center" style="width: 110px;">Pedidos</th>
+            <th class="center" style="width: 110px;">Barcas</th>
+            <th class="right" style="width: 130px;">Valor Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${paymentHtml}
         </tbody>
       </table>
 
@@ -915,6 +1053,18 @@ function generateReportHTML(period) {
           <span>Total de Pedidos Validados:</span>
           <strong>${totalOrders} pedidos</strong>
         </div>
+        
+        <div class="summary-row">
+          <span>Volume Total de Barcas:</span>
+          <strong>${totalBarcasAll} barcas</strong>
+        </div>
+        
+        <!-- Detalhamento de Delivery vs Retirada -->
+        <div class="delivery-split">
+          <span>↳ 🛵 Delivery: <strong>${totalBarcasDelivery}</strong> un</span>
+          <span>↳ 🏪 Retirada: <strong>${totalBarcasRetirada}</strong> un</span>
+        </div>
+
         <div class="summary-row total">
           <span>Valor Bruto Apurado (Itens + Frete):</span>
           <span>${totalRevenue.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</span>
@@ -957,7 +1107,6 @@ if (btnToggleFreeze) {
   });
 }
 
-// Chama a função ao iniciar para ajustar a cor do botão se já estiver pausado
 document.addEventListener("DOMContentLoaded", () => {
   updateFreezeButtonUI();
 });

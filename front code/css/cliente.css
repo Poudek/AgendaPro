@@ -1,13 +1,14 @@
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 
 :root {
-  --c-900: #050505;
-  --c-800: #121212;
-  --c-700: #262626;
-  --c-500: #ad2831;
-  --c-accent-hover: #c9323c;
-  --text-main: #f5f5f5;
-  --text-muted: #a3a3a3;
+  --c-900: #f8fafc;        /* Fundo geral da página (cinza suave) */
+  --c-800: #ffffff;        /* Fundo dos cards e headers (branco puro) */
+  --c-700: #e2e8f0;        /* Bordas e divisores */
+  --c-500: #ad2831;        /* Vermelho principal da marca */
+  --c-accent-hover: #901f27;
+  --text-main: #0f172a;    /* Texto escuro com alto contraste */
+  --text-muted: #64748b;   /* Rótulos e textos secundários */
+  --input-bg: #f1f5f9;     /* Fundo destacado para campos de entrada */
 }
 
 * {
@@ -15,13 +16,13 @@
   margin: 0;
   padding: 0;
   font-family: 'Plus Jakarta Sans', sans-serif;
-  -webkit-tap-highlight-color: transparent; /* Remove brilho azul ao tocar no mobile */
+  -webkit-tap-highlight-color: transparent;
 }
 
 body {
   background-color: var(--c-900);
   color: var(--text-main);
-  padding-bottom: 100px; /* Espaço para a barra fixa do rodapé */
+  padding-bottom: 100px;
 }
 
 /* Utilitários */
@@ -38,6 +39,7 @@ body {
   position: sticky;
   top: 0;
   z-index: 10;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
 }
 
 .logo-wrapper {
@@ -52,13 +54,13 @@ body {
 
 .logo-icon { color: #fff; width: 24px; height: 24px; }
 
-.header-text h1 { font-size: 1.2rem; font-weight: 800; line-height: 1.1; }
+.header-text h1 { font-size: 1.2rem; font-weight: 800; line-height: 1.1; color: var(--text-main); }
 .header-text p { font-size: 0.85rem; color: var(--text-muted); margin-top: 2px; }
 
 /* Container Principal */
 .app-container {
   padding: 16px;
-  max-width: 600px; /* Limita a largura em tablets/desktop */
+  max-width: 600px;
   margin: 0 auto;
 }
 
@@ -77,6 +79,7 @@ body {
   display: flex;
   flex-direction: column;
   gap: 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
 }
 
 .card-header {
@@ -88,7 +91,7 @@ body {
   margin-bottom: 4px;
 }
 
-.card-header h2 { font-size: 1.1rem; font-weight: 700; }
+.card-header h2 { font-size: 1.1rem; font-weight: 700; color: var(--text-main); }
 .card-header svg { width: 20px; height: 20px; }
 
 /* Inputs */
@@ -113,25 +116,26 @@ body {
 .input-group input,
 .input-group select,
 .input-group textarea {
-  background-color: var(--c-900);
+  background-color: var(--input-bg);
   border: 1px solid var(--c-700);
   color: var(--text-main);
   padding: 0 16px;
   border-radius: 10px;
-  font-size: 1rem; /* Previne zoom automático no iOS */
-  min-height: 48px; /* Altura ideal para toque */
+  font-size: 1rem;
+  min-height: 48px;
   outline: none;
-  transition: border-color 0.2s;
-  appearance: none; /* Remove seta padrão do select */
+  transition: all 0.2s ease;
+  appearance: none;
+  -webkit-appearance: none;
 }
 
-/* Seta customizada pro Select */
+/* Seta customizada pro Select alinhada ao tema claro */
 .input-group select {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23a3a3a3' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
   background-repeat: no-repeat;
-  background-position: right 12px center;
+  background-position: right 14px center;
   background-size: 16px;
-  padding-right: 40px;
+  padding-right: 42px;
 }
 
 .input-group textarea {
@@ -143,11 +147,16 @@ body {
 .input-group select:focus,
 .input-group textarea:focus {
   border-color: var(--c-500);
+  background-color: #ffffff;
+  box-shadow: 0 0 0 3px rgba(173, 40, 49, 0.1);
 }
 
+/* Deixa os ícones nativos de calendário e relógio escuros */
 .input-group input[type="date"]::-webkit-calendar-picker-indicator,
 .input-group input[type="time"]::-webkit-calendar-picker-indicator {
-  filter: invert(1); /* Deixa os ícones de data/hora brancos */
+  filter: none;
+  opacity: 0.6;
+  cursor: pointer;
 }
 
 /* Barra de Ação Fixa (Rodapé) */
@@ -162,6 +171,7 @@ body {
   z-index: 20;
   display: flex;
   justify-content: center;
+  box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.04);
 }
 
 .btn-submit {
@@ -179,16 +189,20 @@ body {
   justify-content: center;
   gap: 10px;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: background-color 0.2s, transform 0.1s;
 }
 
-.btn-submit:active { background-color: var(--c-accent-hover); }
+.btn-submit:hover {
+  background-color: var(--c-accent-hover);
+}
+
+.btn-submit:active {
+  transform: scale(0.99);
+}
 
 /* =========================================
    AJUSTES DE RESPONSIVIDADE (MOBILE)
 ========================================= */
-
-/* Garante que os campos respeitem o tamanho da caixa, sem vazar */
 input, select, textarea {
   width: 100%;
   max-width: 100%;
@@ -196,7 +210,6 @@ input, select, textarea {
   text-overflow: ellipsis;
 }
 
-/* Em telas menores que 600px (celulares), empilha os campos lado a lado */
 @media (max-width: 600px) {
   .input-row {
     display: flex !important;
@@ -204,12 +217,11 @@ input, select, textarea {
     gap: 16px !important;
   }
   
-  /* Ajusta margens internas dos cards para aproveitar melhor o espaço da tela */
   .form-card {
     padding: 16px !important;
   }
   
   .app-container {
-    padding: 16px 12px 100px 12px !important; /* Mantém espaço pro botão fixo embaixo */
+    padding: 16px 12px 100px 12px !important;
   }
 }
