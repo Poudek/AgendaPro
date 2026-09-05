@@ -800,7 +800,7 @@ if (btnLogout) {
   btnLogout.addEventListener("click", () => {
     if (confirm("Deseja realmente sair do painel?")) {
       localStorage.removeItem("sushiAdminLoggedIn");
-      window.location.href = "login.html";
+      window.location.href = "index.html";
     }
   });
 }

@@ -8,142 +8,198 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <script src="https://unpkg.com/lucide@latest"></script>
-  
   <style>
     :root {
-      --c-900: #050505; 
-      --c-800: #121212; 
-      --c-700: #262626; 
-      --c-500: #ad2831; 
-      --c-accent-hover: #c9323c; 
-      --text-main: #f5f5f5;
-      --text-muted: #a3a3a3;
+      --c-900: #f4f4f5;
+      --c-800: #ffffff;
+      --c-700: #e4e4e7;
+      --c-500: #ad2831;
+      --c-accent-hover: #c9323c;
+      --text-main: #18181b;
+      --text-muted: #52525b;
+      --danger: #ef4444;
     }
-    
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
-    
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+
     body {
       background-color: var(--c-900);
       color: var(--text-main);
-      height: 100vh;
+      min-height: 100vh;
       display: flex;
-      justify-content: center;
       align-items: center;
+      justify-content: center;
+      padding: 20px;
     }
 
-    .login-container {
+    .login-card {
       background: var(--c-800);
       border: 1px solid var(--c-700);
-      padding: 40px;
       border-radius: 16px;
+      padding: 36px 32px;
       width: 100%;
       max-width: 400px;
-      box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
       text-align: center;
     }
 
-    .brand-logo {
-      width: 64px; height: 64px;
-      background: var(--c-500);
-      border-radius: 16px;
+    .login-logo {
+      height: 60px;
+      width: auto;
+      object-fit: contain;
+      margin-bottom: 8px;
+    }
+
+    .login-header h1 {
+      font-size: 1.3rem;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+
+    .login-header p {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-top: 4px;
+      margin-bottom: 24px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      text-align: left;
+      margin-bottom: 16px;
+    }
+
+    .form-group label {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .input-wrapper {
+      position: relative;
       display: flex;
       align-items: center;
-      justify-content: center;
-      margin: 0 auto 24px;
-      box-shadow: 0 4px 12px rgba(173, 40, 49, 0.3);
+      gap: 8px;
     }
-    
-    .brand-logo i { color: #fff; width: 32px; height: 32px; }
 
-    h1 { font-size: 1.5rem; font-weight: 800; margin-bottom: 8px; }
-    p { color: var(--text-muted); font-size: 0.95rem; margin-bottom: 32px; }
+    .input-wrapper i {
+      position: absolute;
+      left: 14px;
+      width: 18px;
+      height: 18px;
+      color: var(--text-muted);
+    }
 
-    .form-group { text-align: left; margin-bottom: 20px; }
-    .form-group label { display: block; font-size: 0.85rem; color: var(--text-muted); font-weight: 600; margin-bottom: 8px; }
-    .form-group input {
+    .input-wrapper input {
       width: 100%;
+      padding: 12px 14px 12px 42px;
       background: var(--c-900);
       border: 1px solid var(--c-700);
+      border-radius: 10px;
+      font-size: 0.95rem;
       color: var(--text-main);
-      padding: 14px;
-      border-radius: 8px;
-      font-size: 1rem;
       outline: none;
-      transition: 0.2s;
+      transition: border-color 0.2s;
     }
-    .form-group input:focus { border-color: var(--c-500); }
+
+    .input-wrapper input:focus {
+      border-color: var(--c-500);
+    }
 
     .btn-login {
       width: 100%;
+      padding: 13px;
       background: var(--c-500);
       color: #fff;
       border: none;
-      padding: 14px;
-      border-radius: 8px;
+      border-radius: 10px;
       font-size: 1rem;
       font-weight: 700;
       cursor: pointer;
-      transition: 0.2s;
       margin-top: 8px;
+      transition: background-color 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
     }
-    .btn-login:hover { background: var(--c-accent-hover); }
+
+    .btn-login:hover {
+      background: var(--c-accent-hover);
+    }
 
     .error-msg {
-      color: #ef4444;
+      display: none;
+      color: var(--danger);
       font-size: 0.85rem;
       font-weight: 600;
-      margin-top: 16px;
-      display: none;
+      margin-top: 12px;
     }
   </style>
 </head>
 <body>
 
-  <div class="login-container">
-    <div class="brand-logo">
-      <i data-lucide="utensils-crossed"></i>
+  <div class="login-card">
+    <img src="./assets/logo.png" alt="Dedé Sushi" class="login-logo">
+    <div class="login-header">
+      <h1>Gestão</h1>
+      <p>Acesso restrito ao painel administrativo</p>
     </div>
-    <h1>Acesso ao Painel</h1>
-    <p>Gestão Dedé Sushi</p>
 
     <form id="loginForm">
       <div class="form-group">
-        <label>Usuário</label>
-        <input type="text" id="username" placeholder="Digite seu usuário" required>
+        <label for="adminUser">Usuário</label>
+        <div class="input-wrapper">
+          <i data-lucide="user"></i>
+          <input type="text" id="adminUser" placeholder="Digite seu usuário" required autofocus>
+        </div>
       </div>
+
       <div class="form-group">
-        <label>Senha</label>
-        <input type="password" id="password" placeholder="Digite sua senha" required>
+        <label for="adminPass">Senha</label>
+        <div class="input-wrapper">
+          <i data-lucide="lock"></i>
+          <input type="password" id="adminPass" placeholder="Digite sua senha" required>
+        </div>
       </div>
-      <button type="submit" class="btn-login">Entrar no Sistema</button>
-      <div id="errorMsg" class="error-msg">Usuário ou senha incorretos!</div>
+
+      <button type="submit" class="btn-login">
+        Entrar no Painel <i data-lucide="arrow-right" style="width: 18px; height: 18px;"></i>
+      </button>
+
+      <div id="loginError" class="error-msg">Usuário ou senha incorretos!</div>
     </form>
   </div>
 
   <script>
-    lucide.createIcons();
+    if (window.lucide) lucide.createIcons();
 
-    // DEFINA SEU USUÁRIO E SENHA AQUI
-    const VALID_USER = "admin";
-    const VALID_PASS = "dede2026"; 
+    // Redireciona caso a sessão já esteja ativa
+    if (localStorage.getItem("sushiAdminLoggedIn") === "true") {
+      window.location.href = "admin.html";
+    }
 
     const loginForm = document.getElementById("loginForm");
-    const errorMsg = document.getElementById("errorMsg");
+    const errorMsg = document.getElementById("loginError");
 
     loginForm.addEventListener("submit", (e) => {
       e.preventDefault();
-      
-      const user = document.getElementById("username").value;
-      const pass = document.getElementById("password").value;
+      const user = document.getElementById("adminUser").value.trim();
+      const pass = document.getElementById("adminPass").value.trim();
 
-      if (user === VALID_USER && pass === VALID_PASS) {
-        // Salva a permissão no navegador
+      // Credenciais padrão (altere conforme preferir)
+      if (user === "admin" && pass === "dede2026") {
         localStorage.setItem("sushiAdminLoggedIn", "true");
-        // Redireciona para o painel principal
-        window.location.href = "admin.html"; 
+        window.location.href = "admin.html";
       } else {
         errorMsg.style.display = "block";
-        document.getElementById("password").value = ""; // Limpa a senha
       }
     });
   </script>
