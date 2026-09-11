@@ -32,6 +32,9 @@
       <button class="btn-advance" id="btnToggleFreeze" style="padding: 8px 16px; background-color: var(--warning); color: #121212; border: none; font-weight: bold;">
         <i data-lucide="pause-circle" class="icon-sm"></i> Pausar Pedidos
       </button>
+      <button class="btn-advance" id="btnOpenCatalog" style="padding: 8px 16px; background-color: var(--c-800); color: var(--text-main); border: 1px solid var(--c-700);">
+        <i data-lucide="utensils" class="icon-sm"></i> Cardápio
+      </button>
       <button class="btn-advance" id="btnOpenReports" style="padding: 8px 16px; background-color: var(--c-700); color: #121212; border: 1px solid var(--c-600);">
         <i data-lucide="file-text" class="icon-sm"></i> Relatórios
       </button>
@@ -354,6 +357,67 @@
         <div style="background: rgba(239, 68, 68, 0.1); padding: 10px; border-radius: 6px; margin-top: 10px; text-align: center;">
           <span style="font-size: 0.8rem; color: #ff8a8a;">Ao gerar, clique em "Imprimir / Salvar como PDF" na nova tela para mandar no WhatsApp.</span>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL GERENCIADOR DE CARDÁPIO -->
+  <div class="modal-overlay hidden" id="catalogModal">
+    <div class="modal-content" style="max-width: 750px;">
+      <div class="modal-header">
+        <h2><i data-lucide="utensils" class="icon-sm text-primary"></i> Gerenciar Produtos & Cardápio</h2>
+        <button class="btn-close-modal" id="btnCloseCatalog"><i data-lucide="x"></i></button>
+      </div>
+
+      <div class="modal-body" style="padding: 20px; gap: 20px;">
+        
+        <!-- Formulário para Criar/Editar Produto -->
+        <div style="background: var(--c-900); padding: 16px; border-radius: 12px; border: 1px solid var(--c-700);">
+          <h3 id="catalogFormTitle" style="font-size: 0.95rem; font-weight: 700; margin-bottom: 12px; color: var(--text-main);">
+            Adicionar Novo Item ao Cardápio
+          </h3>
+          <form id="catalogItemForm" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+            <input type="hidden" id="catEditId">
+            
+            <div class="form-group">
+              <label>Tipo / Categoria</label>
+              <input type="text" id="catType" placeholder="Ex: Tradicional, Especial, Premium..." required list="catalogTypesList" class="input-control">
+              <datalist id="catalogTypesList"></datalist>
+            </div>
+
+            <div class="form-group">
+              <label>Identificador / Nome (Tamanho)</label>
+              <input type="text" id="catValue" placeholder="Ex: P - 70 Peças" required class="input-control">
+            </div>
+
+            <div class="form-group">
+              <label>Texto de Exibição (Com detalhes)</label>
+              <input type="text" id="catText" placeholder="Ex: Tamanho P (70 Peças) (3 a 4 pessoas)" required class="input-control">
+            </div>
+
+            <div class="form-group">
+              <label>Preço (R$)</label>
+              <input type="text" id="catPrice" placeholder="R$ 0,00" inputmode="numeric" required class="input-control">
+            </div>
+
+            <div style="grid-column: 1 / -1; display: flex; justify-content: flex-end; gap: 10px; margin-top: 4px;">
+              <button type="button" id="btnCancelCatalogEdit" class="btn-cancel" style="display: none; padding: 8px 16px;">Cancelar Edição</button>
+              <button type="submit" id="btnSaveCatalogItem" class="btn-advance" style="padding: 8px 18px;">Salvar no Cardápio</button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Lista de Produtos Agrupados por Categoria -->
+        <div>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+            <h3 style="font-size: 1rem; font-weight: 800; color: var(--text-main);">Itens Ativos no Cardápio</h3>
+            <button type="button" id="btnResetCatalog" style="background: transparent; border: none; font-size: 0.75rem; color: var(--text-muted); cursor: pointer; text-decoration: underline;">Restaurar Padrão de Fábrica</button>
+          </div>
+          <div id="catalogListContainer" style="display: flex; flex-direction: column; gap: 14px; max-height: 320px; overflow-y: auto; padding-right: 4px;">
+            <!-- Os cards dos produtos serão injetados via JS -->
+          </div>
+        </div>
+
       </div>
     </div>
   </div>

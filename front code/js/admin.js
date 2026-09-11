@@ -1110,3 +1110,266 @@ if (btnToggleFreeze) {
 document.addEventListener("DOMContentLoaded", () => {
   updateFreezeButtonUI();
 });
+
+// ==========================================================
+// GERENCIADOR DE CARDÁPIO DINÂMICO (PRODUTOS & PREÇOS)
+// ==========================================================
+
+const DEFAULT_CATALOG = {
+  "Tradicional": [
+    { id: "trad-exp", value: "Express descartável - 50 peças", text: "Express (50 peças) - R$ 190,00 (2 pessoas)", price: 190.00 },
+    { id: "trad-p", value: "P - 70 Peças", text: "Tamanho P (70 Peças) - R$ 280,00 (3 a 4 pessoas)", price: 280.00 },
+    { id: "trad-m", value: "M - 90 Peças", text: "Tamanho M (90 Peças) - R$ 360,00 (4 a 5 pessoas)", price: 360.00 },
+    { id: "trad-g", value: "G - 150 Peças", text: "Tamanho G (150 Peças) - R$ 600,00 (7 a 8 pessoas)", price: 600.00 },
+    { id: "trad-gg", value: "GG - 200 Peças", text: "Tamanho GG (200 Peças) - R$ 690,00 (11 a 12 pessoas)", price: 690.00 }
+  ],
+  "Especial": [
+    { id: "esp-exp", value: "Express descartável - 50 peças", text: "Express (50 peças) - R$ 280,00 (2 pessoas)", price: 280.00 },
+    { id: "esp-p", value: "P - 70 Peças", text: "Tamanho P (70 Peças) - R$ 370,00 (3 a 4 pessoas)", price: 370.00 },
+    { id: "esp-m", value: "M - 90 Peças", text: "Tamanho M (90 Peças) - R$ 450,00 (4 a 5 pessoas)", price: 450.00 },
+    { id: "esp-g", value: "G - 150 Peças", text: "Tamanho G (150 Peças) - R$ 750,00 (7 a 8 pessoas)", price: 750.00 },
+    { id: "esp-gg", value: "GG - 200 Peças", text: "Tamanho GG (200 Peças) - R$ 985,00 (11 a 12 pessoas)", price: 985.00 }
+  ]
+};
+
+// Carrega ou inicializa o catálogo
+function getCatalog() {
+  const saved = localStorage.getItem("sushiProductsCatalog");
+  if (!saved) {
+    localStorage.setItem("sushiProductsCatalog", JSON.stringify(DEFAULT_CATALOG));
+    return DEFAULT_CATALOG;
+  }
+  return JSON.parse(saved);
+}
+
+function saveCatalog(catalog) {
+  localStorage.setItem("sushiProductsCatalog", JSON.stringify(catalog));
+  // Dispara evento para sincronizar se houver outras abas
+  window.dispatchEvent(new Event("storage"));
+  renderCatalogAdmin();
+  populateAdminModalDropdowns();
+}
+
+// Renderiza a listagem no Modal do Admin
+function renderCatalogAdmin() {
+  const catalog = getCatalog();
+  const container = document.getElementById("catalogListContainer");
+  const datalist = document.getElementById("catalogTypesList");
+  if (!container) return;
+
+  container.innerHTML = "";
+  if (datalist) datalist.innerHTML = "";
+
+  const types = Object.keys(catalog);
+
+  types.forEach(type => {
+    if (datalist) {
+      const opt = document.createElement("option");
+      opt.value = type;
+      datalist.appendChild(opt);
+    }
+
+    const section = document.createElement("div");
+    section.style.cssText = "background: var(--c-800); border: 1px solid var(--c-700); border-radius: 8px; padding: 12px;";
+
+    const header = document.createElement("div");
+    header.style.cssText = "display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--c-700); padding-bottom: 6px; margin-bottom: 8px;";
+    header.innerHTML = `
+      <strong style="color: var(--c-500); text-transform: uppercase; font-size: 0.85rem; letter-spacing: 0.5px;">${type}</strong>
+      <span style="font-size: 0.75rem; color: var(--text-muted);">${catalog[type].length} opções</span>
+    `;
+    section.appendChild(header);
+
+    const list = document.createElement("div");
+    list.style.cssText = "display: flex; flex-direction: column; gap: 6px;";
+
+    catalog[type].forEach(item => {
+      const itemRow = document.createElement("div");
+      itemRow.style.cssText = "display: flex; justify-content: space-between; align-items: center; padding: 6px 8px; background: var(--c-900); border-radius: 6px; font-size: 0.85rem;";
+      
+      itemRow.innerHTML = `
+        <div style="display: flex; flex-direction: column;">
+          <span style="font-weight: 700; color: var(--text-main);">${item.value}</span>
+          <span style="font-size: 0.75rem; color: var(--text-muted);">${item.text}</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <strong style="color: var(--success); font-size: 0.95rem;">${item.price.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</strong>
+          <button type="button" class="btn-edit-catalog" data-id="${item.id}" data-type="${type}" style="background: transparent; border: none; color: var(--c-500); cursor: pointer; padding: 4px;" title="Editar">
+            <i data-lucide="edit-2" style="width: 15px; height: 15px;"></i>
+          </button>
+          <button type="button" class="btn-del-catalog" data-id="${item.id}" data-type="${type}" style="background: transparent; border: none; color: var(--danger); cursor: pointer; padding: 4px;" title="Remover">
+            <i data-lucide="trash" style="width: 15px; height: 15px;"></i>
+          </button>
+        </div>
+      `;
+      list.appendChild(itemRow);
+    });
+
+    section.appendChild(list);
+    container.appendChild(section);
+  });
+
+  if (window.lucide) lucide.createIcons();
+
+  // Eventos de exclusão
+  document.querySelectorAll(".btn-del-catalog").forEach(btn => {
+    btn.onclick = () => {
+      const id = btn.getAttribute("data-id");
+      const type = btn.getAttribute("data-type");
+      if (confirm(`Remover esta opção de ${type}?`)) {
+        const cat = getCatalog();
+        cat[type] = cat[type].filter(i => i.id !== id);
+        if (cat[type].length === 0) delete cat[type];
+        saveCatalog(cat);
+      }
+    };
+  });
+
+  // Eventos de edição
+  document.querySelectorAll(".btn-edit-catalog").forEach(btn => {
+    btn.onclick = () => {
+      const id = btn.getAttribute("data-id");
+      const type = btn.getAttribute("data-type");
+      const cat = getCatalog();
+      const item = (cat[type] || []).find(i => i.id === id);
+      if (!item) return;
+
+      document.getElementById("catEditId").value = item.id;
+      document.getElementById("catType").value = type;
+      document.getElementById("catValue").value = item.value;
+      document.getElementById("catText").value = item.text;
+      document.getElementById("catPrice").value = item.price;
+
+      document.getElementById("catalogFormTitle").textContent = "Editar Item do Cardápio";
+      document.getElementById("btnSaveCatalogItem").textContent = "Atualizar Item";
+      document.getElementById("btnCancelCatalogEdit").style.display = "inline-block";
+    };
+  });
+}
+
+// Preenche os selects (#addType e #addSize) do Modal de Novo Pedido Manual
+function populateAdminModalDropdowns() {
+  const catalog = getCatalog();
+  const addType = document.getElementById("addType");
+  const addSize = document.getElementById("addSize");
+  if (!addType || !addSize) return;
+
+  const currentType = addType.value || Object.keys(catalog)[0];
+  addType.innerHTML = "";
+
+  Object.keys(catalog).forEach(type => {
+    const opt = document.createElement("option");
+    opt.value = type;
+    opt.textContent = type;
+    if (type === currentType) opt.selected = true;
+    addType.appendChild(opt);
+  });
+
+  function updateSizes() {
+    const selected = addType.value;
+    addSize.innerHTML = "";
+    const items = catalog[selected] || [];
+    items.forEach(item => {
+      const opt = document.createElement("option");
+      opt.value = item.value;
+      opt.textContent = `${item.value} - R$ ${item.price.toFixed(2).replace('.', ',')}`;
+      addSize.appendChild(opt);
+    });
+  }
+
+  addType.onchange = updateSizes;
+  updateSizes();
+}
+
+// Controle do Modal de Cardápio
+const catalogModal = document.getElementById("catalogModal");
+const btnOpenCatalog = document.getElementById("btnOpenCatalog");
+const btnCloseCatalog = document.getElementById("btnCloseCatalog");
+const catalogItemForm = document.getElementById("catalogItemForm");
+const btnCancelCatalogEdit = document.getElementById("btnCancelCatalogEdit");
+const btnResetCatalog = document.getElementById("btnResetCatalog");
+
+if (btnOpenCatalog && catalogModal) {
+  btnOpenCatalog.onclick = () => {
+    renderCatalogAdmin();
+    catalogModal.classList.remove("hidden");
+  };
+}
+if (btnCloseCatalog && catalogModal) {
+  btnCloseCatalog.onclick = () => catalogModal.classList.add("hidden");
+}
+
+function resetCatalogForm() {
+  catalogItemForm.reset();
+  document.getElementById("catEditId").value = "";
+  document.getElementById("catalogFormTitle").textContent = "Adicionar Novo Item ao Cardápio";
+  document.getElementById("btnSaveCatalogItem").textContent = "Salvar no Cardápio";
+  btnCancelCatalogEdit.style.display = "none";
+}
+
+if (btnCancelCatalogEdit) {
+  btnCancelCatalogEdit.onclick = resetCatalogForm;
+}
+
+if (btnResetCatalog) {
+  btnResetCatalog.onclick = () => {
+    if (confirm("Deseja restaurar as opções padrões do cardápio? Todas as alterações manuais serão perdidas.")) {
+      localStorage.setItem("sushiProductsCatalog", JSON.stringify(DEFAULT_CATALOG));
+      renderCatalogAdmin();
+      populateAdminModalDropdowns();
+    }
+  };
+}
+
+if (catalogItemForm) {
+  catalogItemForm.onsubmit = (e) => {
+    e.preventDefault();
+    const editId = document.getElementById("catEditId").value;
+    const type = document.getElementById("catType").value.trim();
+    const value = document.getElementById("catValue").value.trim();
+    const text = document.getElementById("catText").value.trim();
+    // Converte a string "R$ 280,00" para número decimal 280.00
+    const rawPrice = document.getElementById("catPrice").value.replace(/\D/g, "");
+    const price = rawPrice ? parseFloat(rawPrice) / 100 : 0;
+
+    const catalog = getCatalog();
+    if (!catalog[type]) catalog[type] = [];
+
+    if (editId) {
+      // Remove da categoria antiga caso tenha mudado de categoria
+      Object.keys(catalog).forEach(t => {
+        catalog[t] = catalog[t].filter(i => i.id !== editId);
+        if (catalog[t].length === 0 && t !== type) delete catalog[t];
+      });
+      if (!catalog[type]) catalog[type] = [];
+      catalog[type].push({ id: editId, value, text, price });
+    } else {
+      const newId = `item-${Date.now()}`;
+      catalog[type].push({ id: newId, value, text, price });
+    }
+
+    saveCatalog(catalog);
+    resetCatalogForm();
+  };
+}
+
+// Inicializa os selects do modal assim que carrega
+populateAdminModalDropdowns();
+
+// --- MÁSCARA MONETÁRIA (R$) PARA O PREÇO DO CARDÁPIO ---
+const catPriceInput = document.getElementById("catPrice");
+
+if (catPriceInput) {
+  catPriceInput.addEventListener("input", (e) => {
+    let value = e.target.value.replace(/\D/g, "");
+    if (!value) {
+      e.target.value = "";
+      return;
+    }
+    const numericValue = (parseInt(value, 10) / 100).toFixed(2);
+    e.target.value = Number(numericValue).toLocaleString("pt-BR", {
+      style: "currency",
+      currency: "BRL"
+    });
+  });
+}

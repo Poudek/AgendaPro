@@ -50,33 +50,78 @@ if (dateInput) {
   dateInput.value = localISO;
 }
 
-// --- 2. PRECIFICAÇÃO DINÂMICA (TRADICIONAL VS ESPECIAL) ---
-const sizesData = {
+// --- 2. CATÁLOGO DINÂMICO VINDO DO LOCALSTORAGE ---
+const DEFAULT_CLIENT_CATALOG = {
   "Tradicional": [
-    { value: "Express descartável - 50 peças", text: "Express (50 peças) - R$ 190,00 (2 pessoas)" },
-    { value: "P - 70 Peças", text: "Tamanho P (70 Peças) - R$ 280,00 (3 a 4 pessoas)" },
-    { value: "M - 90 Peças", text: "Tamanho M (90 Peças) - R$ 360,00 (4 a 5 pessoas)" },
-    { value: "G - 150 Peças", text: "Tamanho G (150 Peças) - R$ 600,00 (7 a 8 pessoas)" },
-    { value: "GG - 200 Peças", text: "Tamanho GG (200 Peças) - R$ 690,00 (11 a 12 pessoas)" }
+    { value: "Express descartável - 50 peças", text: "Express (50 peças) - R$ 190,00 (2 pessoas)", price: 190 },
+    { value: "P - 70 Peças", text: "Tamanho P (70 Peças) - R$ 280,00 (3 a 4 pessoas)", price: 280 },
+    { value: "M - 90 Peças", text: "Tamanho M (90 Peças) - R$ 360,00 (4 a 5 pessoas)", price: 360 },
+    { value: "G - 150 Peças", text: "Tamanho G (150 Peças) - R$ 600,00 (7 a 8 pessoas)", price: 600 },
+    { value: "GG - 200 Peças", text: "Tamanho GG (200 Peças) - R$ 690,00 (11 a 12 pessoas)", price: 690 }
   ],
   "Especial": [
-    { value: "Express descartável - 50 peças", text: "Express (50 peças) - R$ 280,00 (2 pessoas)" },
-    { value: "P - 70 Peças", text: "Tamanho P (70 Peças) - R$ 370,00 (3 a 4 pessoas)" },
-    { value: "M - 90 Peças", text: "Tamanho M (90 Peças) - R$ 450,00 (4 a 5 pessoas)" },
-    { value: "G - 150 Peças", text: "Tamanho G (150 Peças) - R$ 750,00 (7 a 8 pessoas)" },
-    { value: "GG - 200 Peças", text: "Tamanho GG (200 Peças) - R$ 985,00 (11 a 12 pessoas)" }
+    { value: "Express descartável - 50 peças", text: "Express (50 peças) - R$ 280,00 (2 pessoas)", price: 280 },
+    { value: "P - 70 Peças", text: "Tamanho P (70 Peças) - R$ 370,00 (3 a 4 pessoas)", price: 370 },
+    { value: "M - 90 Peças", text: "Tamanho M (90 Peças) - R$ 450,00 (4 a 5 pessoas)", price: 450 },
+    { value: "G - 150 Peças", text: "Tamanho G (150 Peças) - R$ 750,00 (7 a 8 pessoas)", price: 750 },
+    { value: "GG - 200 Peças", text: "Tamanho GG (200 Peças) - R$ 985,00 (11 a 12 pessoas)", price: 985 }
   ]
 };
 
+function getClientCatalog() {
+  const saved = localStorage.getItem("sushiProductsCatalog");
+  return saved ? JSON.parse(saved) : DEFAULT_CLIENT_CATALOG;
+}
+
 function updateSizeOptions() {
   if (!typeSelect || !sizeSelect) return;
+  const catalog = getClientCatalog();
+  const availableTypes = Object.keys(catalog);
+
+  if (availableTypes.length === 0) return;
+
+  // Mantém o tipo selecionado válido
+  let currentSelectedType = typeSelect.value;
+  if (!availableTypes.includes(currentSelectedType)) {
+    currentSelectedType = availableTypes[0];
+  }
+
+  typeSelect.innerHTML = "";
+  availableTypes.forEach(t => {
+    const opt = document.createElement("option");
+    opt.value = t;
+    opt.textContent = t;
+    if (t === currentSelectedType) opt.selected = true;
+    typeSelect.appendChild(opt);
+  });
+
   const selectedType = typeSelect.value;
   sizeSelect.innerHTML = ""; 
   
-  sizesData[selectedType].forEach(optionData => {
+  const options = catalog[selectedType] || [];
+  options.forEach(optionData => {
     const option = document.createElement("option");
-    option.value = optionData.value; 
-    option.textContent = optionData.text; 
+    option.value = optionData.value;
+
+    // Converte e formata o preço se existir numericamente
+    let priceFormatted = "";
+    if (typeof optionData.price === "number" && !isNaN(optionData.price)) {
+      priceFormatted = optionData.price.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+    }
+
+    // Se o texto não contiver "R$", anexa o valor em Real
+    let label = optionData.text || optionData.value;
+    if (priceFormatted && !label.includes("R$")) {
+      label = `${label} - ${priceFormatted}`;
+    }
+
+    option.textContent = label;
+
+    // Salva o preço direto no dataset para o cálculo não quebrar
+    if (typeof optionData.price === "number" && !isNaN(optionData.price)) {
+      option.dataset.price = optionData.price;
+    }
+
     sizeSelect.appendChild(option);
   });
 }
@@ -84,6 +129,13 @@ function updateSizeOptions() {
 if (typeSelect) {
   typeSelect.addEventListener("change", updateSizeOptions);
 }
+
+// Escuta alterações feitas no Admin em tempo real
+window.addEventListener("storage", (e) => {
+  if (e.key === "sushiProductsCatalog") {
+    updateSizeOptions();
+  }
+});
 
 // --- 3. GERAÇÃO DINÂMICA DE HORÁRIOS (BLOQUEIA APENAS HORÁRIOS EXATOS JÁ AGENDADOS) ---
 function generateTimeSlots() {
@@ -106,17 +158,13 @@ function generateTimeSlots() {
   let minHour = openHour;
   let minMinute = 0;
 
-  // Impede que o cliente peça para um horário que já passou hoje no relógio
   if (isToday) {
     minHour = now.getHours();
     minMinute = now.getMinutes();
   }
 
-  // 1. Busca os pedidos do dia escolhido no banco de dados local
   const existingOrders = JSON.parse(localStorage.getItem("sushiOrdersDatabase")) || [];
   const ordersOnDate = existingOrders.filter(o => o.date === selectedDateString && o.status !== "Cancelado");
-  
-  // 2. Extrai apenas os horários exatos que já estão ocupados (ex: ["15:00", "19:30"])
   const bookedTimes = ordersOnDate.map(o => o.time);
 
   let hasAvailableSlots = false;
@@ -124,8 +172,6 @@ function generateTimeSlots() {
 
   for (let h = openHour; h <= closeHour; h++) {
     for (let m = 0; m < 60; m += 30) {
-      
-      // Regra de horário passado: se o horário for menor que a hora atual, pula
       if (isToday) {
         if (h < minHour) continue;
         if (h === minHour && m < minMinute) continue;
@@ -135,7 +181,6 @@ function generateTimeSlots() {
       const option = document.createElement("option");
       option.value = timeString;
       
-      // Se o horário atual do loop já estiver na lista de horários ocupados, bloqueia
       if (bookedTimes.includes(timeString)) {
         option.textContent = `${timeString} (Esgotado)`;
         option.disabled = true;
@@ -152,6 +197,10 @@ function generateTimeSlots() {
   if (!hasAvailableSlots) {
     timeSelect.innerHTML = '<option value="" disabled selected>Horários encerrados para hoje</option>';
   }
+}
+
+if (dateInput) {
+  dateInput.addEventListener("change", generateTimeSlots);
 }
 
 // --- 4. MÁSCARA DE TELEFONE ---
@@ -225,9 +274,8 @@ function renderCart() {
   
   if (subtotalEl) {
     subtotalEl.textContent = subtotalFormatted;
-    subtotalEl.style.color = "#16a34a"; // Verde sólido do valor
+    subtotalEl.style.color = "#16a34a";
     
-    // Força os estilos do container do Total caso o HTML esteja antigo
     const cartTotalBox = document.getElementById("cartTotalBox");
     if (cartTotalBox) {
       cartTotalBox.style.cssText = "display: flex; align-items: center; justify-content: space-between; background: var(--input-bg, #f1f5f9); padding: 12px 14px; border-radius: 8px; margin-top: 6px; border: 1px solid var(--c-700, #e2e8f0);";
@@ -257,7 +305,7 @@ function renderCart() {
       if (cartItems[idx].quantity > 1) {
         cartItems[idx].quantity -= 1;
       } else {
-        cartItems.splice(idx, 1); // Se chegar a 0, remove o item
+        cartItems.splice(idx, 1);
       }
       renderCart();
     };
@@ -273,7 +321,7 @@ function renderCart() {
   });
 }
 
-// Botão Adicionar ao Pedido (Adiciona sempre 1 unidade da configuração escolhida)
+// Botão Adicionar ao Pedido
 if (btnAddBarca) {
   btnAddBarca.onclick = (e) => {
     e.preventDefault();
@@ -287,20 +335,24 @@ if (btnAddBarca) {
     
     const selectedText = selectedOption.textContent;
 
-    const priceMatch = selectedText.match(/R\$\s?([\d.,]+)/);
-    let unitPriceNumeric = 0;
-    if (priceMatch) {
-      unitPriceNumeric = parseFloat(priceMatch[1].replace(".", "").replace(",", ".")) || 0;
+    // Prioriza dataset.price vindo do catálogo dinâmico
+    let unitPriceNumeric = parseFloat(selectedOption.dataset.price);
+    if (isNaN(unitPriceNumeric)) {
+      const priceMatch = selectedText.match(/R\$\s?([\d.,]+)/);
+      if (priceMatch) {
+        unitPriceNumeric = parseFloat(priceMatch[1].replace(/\./g, "").replace(",", ".")) || 0;
+      } else {
+        unitPriceNumeric = 0;
+      }
     }
 
     const parts = selectedText.split(" - ");
     const sizeDescription = parts.length > 1 ? `${parts[0]} - ${parts[1]}` : selectedText;
 
-    // Verifica se já existe um item com a MESMA configuração exata
     const existingIndex = cartItems.findIndex(i => i.type === type && i.rawSize === sizeVal && i.shrimp === shrimp);
 
     if (existingIndex > -1) {
-      cartItems[existingIndex].quantity += 1; // Se já existe, aumenta +1
+      cartItems[existingIndex].quantity += 1;
     } else {
       cartItems.push({
         type: type,
@@ -339,7 +391,6 @@ if (form) {
     const primaryType = cartItems[0].type;
     const primarySize = cartItems[0].rawSize;
 
-    // Lógica da Retirada x Entrega
     const deliveryType = deliveryTypeSelect ? deliveryTypeSelect.value : "Entrega";
     const addressVal = deliveryType === "Retirada" ? "Retirada no Balcão" : document.getElementById("clientAddress").value;
     const complementVal = deliveryType === "Retirada" ? "N/A" : (document.getElementById("clientComplement").value || "Nenhum");
@@ -372,7 +423,6 @@ if (form) {
     existingOrders.push(newOrder);
     localStorage.setItem("sushiOrdersDatabase", JSON.stringify(existingOrders));
 
-    // Monta a mensagem detalhada para o WhatsApp
     let barcasMessageList = "";
     let totalAcumulado = 0;
     
@@ -408,14 +458,12 @@ ${barcasMessageList}
 
     const encodedMessage = encodeURIComponent(message);
     
-    // Reseta o formulário
     form.reset();
     cartItems = [];
     renderCart();
     updateSizeOptions(); 
     generateTimeSlots(); 
     
-    // Mostra se o endereço de novo ou o de retirada conforme reseta o select
     if (addressFieldsContainer) addressFieldsContainer.style.display = "block";
     if (pickupNotice) pickupNotice.style.display = "none";
     if (clientAddressInput) clientAddressInput.setAttribute("required", "required");
@@ -434,17 +482,15 @@ function checkFreezeState() {
   
   if (isFrozen) {
     overlay.style.display = "flex";
-    document.body.style.overflow = "hidden"; // Trava a rolagem da página
+    document.body.style.overflow = "hidden";
   } else {
     overlay.style.display = "none";
     document.body.style.overflow = "auto";
   }
 }
 
-// Checa a lotação logo que o site do cliente carrega
 checkFreezeState();
 
-// Escuta mudanças em tempo real caso o Admin aperte o botão enquanto o cliente está no site
 window.addEventListener('storage', (e) => {
   if (e.key === 'sushiFreezeState') {
     checkFreezeState();
